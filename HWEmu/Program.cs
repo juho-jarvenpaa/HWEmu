@@ -6,9 +6,9 @@ namespace HWEmu
 {
     internal class Program
     {
-        public static List<Connector> Connections = new List<Connector>();
+        public static List<Connector> Connectors = new List<Connector>();
 
-        public static List<Connector> StateQueue = new List<Connector>();
+        public static List<Connector> ConnectorStateQueue = new List<Connector>();
 
         public static List<Psu> psus = new();
         public static List<Inverter> inverters = new();
@@ -18,7 +18,7 @@ namespace HWEmu
 
         public static bool showLinkablePositions = false;
         public static bool draggingConnection = false;
-        public static IO SelectedIO = null;
+        public static IO SelectedOldOutput = null;
 
         static async Task Main(string[] args)
         {
@@ -28,7 +28,7 @@ namespace HWEmu
             Raylib.InitWindow(1000, 1000, "HWEmu");
             Raylib.SetTargetFPS(60);
 
-            StartLogic();
+            StartStateUpdateLoop();
 
             while (!Raylib.WindowShouldClose())
             {
@@ -42,7 +42,7 @@ namespace HWEmu
 
                     if(Raylib.IsMouseButtonDown(MouseButton.Left))
                     {
-                        if(SelectedIO == null)
+                        if(SelectedOldOutput == null)
                         {
                             // Iterate over all ui items to see if something is close
                             foreach (var i in inverters)
@@ -51,11 +51,18 @@ namespace HWEmu
                                 {
                                     if (PointCloseEnough(mousePosVec2, io.Position))
                                     {
-                                        SelectedIO = io;
-                                        break;
+                                        if(io.Type == IO.TypeIO.Output)
+                                        {
+                                            SelectedOldOutput = io;
+                                            break;
+                                        }
+                                        else
+                                        {
+                                            Console.WriteLine("Select first output");
+                                        }
                                     }
                                 }
-                                if(SelectedIO != null)
+                                if(SelectedOldOutput != null)
                                 {
                                     break;
                                 }
@@ -77,18 +84,25 @@ namespace HWEmu
                                 {
                                     if (PointCloseEnough(mousePosVec2, io.Position))
                                     {
-                                        if(io != SelectedIO)
+                                        // found connection
+                                        if(io.Type == IO.TypeIO.Input)
                                         {
-                                            // found connection
-                                            Connector c = new Connector() { Connectable1 = io, Connectable2 = SelectedIO};
-                                            Connections.Add(c);
-                                            StateQueue.Add(c);
-                                            SelectedIO = null;
+                                            Connector c = new Connector() { OldOutput = SelectedOldOutput, NewInput = io };
+                                            Connectors.Add(c);
+                                            ConnectorStateQueue.Add(c);
+                                            c.State = SelectedOldOutput.State;
                                             break;
                                         }
+                                        else
+                                        {
+                                            Console.WriteLine("Can't connect same types of IO");
+                                        }
+                                        SelectedOldOutput = null;
+                                        draggingConnection = false;
+
                                     }
                                 }
-                                if (SelectedIO == null)
+                                if (SelectedOldOutput == null)
                                 {
                                     break;
                                 }
@@ -104,24 +118,22 @@ namespace HWEmu
 
                     if (Raylib.IsMouseButtonPressed(MouseButton.Left))
                     {
-                        StopLogic();
+                        StopStateUpdates();
 
                         Psu p = new(new Rectangle(mousePosVec2, psuSize));
                         psus.Add(p);
 
-                        StartLogic();
+                        StartStateUpdateLoop();
                     }
 
                     if (Raylib.IsMouseButtonPressed(MouseButton.Right))
                     {
-                        StopLogic();
+                        StopStateUpdates();
                         Inverter i = new Inverter(mousePosVec2);
                         inverters.Add(i);
-                        StartLogic();
+                        StartStateUpdateLoop();
                     }
                 }
-
-
 
                 Raylib.BeginDrawing();
 
@@ -132,27 +144,27 @@ namespace HWEmu
                     Inverter.DrawInverter(i);
 
 
-                foreach (var c in Connections)
+                foreach (var c in Connectors)
                 {
                     if(c.State)
                     {
-                        Raylib.DrawLineEx(c.Connectable1.Position, c.Connectable2.Position, 10f, Color.Blue);
+                        Raylib.DrawLineEx(c.NewInput.Position, c.OldOutput.Position, 10f, Color.Blue);
                     }
                     else
                     {
-                        Raylib.DrawLineEx(c.Connectable1.Position, c.Connectable2.Position, 10f, Color.Gray);
+                        Raylib.DrawLineEx(c.NewInput.Position, c.OldOutput.Position, 10f, Color.Gray);
                     }
                 }
 
                 if(draggingConnection)
                 {
-                    Raylib.DrawLineEx(mousePosVec2, SelectedIO.Position, 10f, Color.Yellow);
+                    Raylib.DrawLineEx(mousePosVec2, SelectedOldOutput.Position, 10f, Color.Yellow);
                 }
 
                 Raylib.EndDrawing();
             }
 
-            StopLogic();
+            StopStateUpdates();
         }
 
         private static bool PointCloseEnough(Vector2 a, Vector2 b)
@@ -165,14 +177,14 @@ namespace HWEmu
             return false;
         }
 
-        private static void StartLogic()
+        private static void StartStateUpdateLoop()
         {
             _logicCts = new CancellationTokenSource();
-            _logicTask = Task.Run(() => LogicLoop(_logicCts.Token));
+            _logicTask = Task.Run(() => StateCalcLoop(_logicCts.Token));
             Console.WriteLine("Logic started");
         }
 
-        private static void StopLogic()
+        private static void StopStateUpdates()
         {
             var cts = _logicCts;
             var task = _logicTask;
@@ -189,54 +201,25 @@ namespace HWEmu
             cts.Dispose();
         }
 
-        private static async Task LogicLoop(CancellationToken token)
+        private static async Task StateCalcLoop(CancellationToken token)
         {
             while (!token.IsCancellationRequested)
             {
-                //Console.WriteLine("Logic happening");
-                CalculateStates();
-                await Task.Delay(100);
+                StateTick();
+                await Task.Delay(300);
             }
 
             Console.WriteLine("Logic stopped");
         }
 
-        private static void CalculateStates()
+        private static void StateTick()
         {
-            // Global reset to default values should exist
-            // clock's ticking forces state changes
-            // order or operation should be designed
-
-            // Initial state
-            // Check if there is circuits to connected to direct power.
-            // If yes iterate state changes on those first.
-            // Then check if nearest touching other components have states to change
-            // Note that do not go deeper until all changes as far as others are done
-            // Continue this until there is nothing to change
-            // After initial check if there is clock/clocks that need to tick
-            // If multiple clocks are ticking at the same time. Apply earlier rule of state changes
-
-
-            // Reset all states to original
-
-            // Go over all components 
-            if(StateQueue.Count > 0)
+            if(ConnectorStateQueue.Count > 0)
             {
-                var item = StateQueue.First();
-                // Check if one of the connectors is true
-                if(item.Connectable1.State || item.Connectable2.State)
-                {
-                    item.Connectable1.State = true;
-                    item.Connectable2.State = true;
-                    item.Connectable1.Parent.IOStateChanged(item.Connectable1);
-                    item.Connectable2.Parent.IOStateChanged(item.Connectable2);
-                    item.State = true;
-                }
-                else
-                {
-                    item.State = false;
-                }
-                StateQueue.RemoveAt(0);
+                var connector = ConnectorStateQueue.First();
+                connector.NewInput.State = connector.State;
+                connector.NewInput.Parent.IOStateChanged(connector.NewInput);
+                ConnectorStateQueue.RemoveAt(0);
             }
         }
     }

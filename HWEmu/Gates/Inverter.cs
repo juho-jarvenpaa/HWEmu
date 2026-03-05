@@ -25,12 +25,14 @@ namespace HWEmu.Gates
                 Position = new Vector2(triangleRightPos.X - commonDimensionValue * 2, triangleRightPos.Y),
                 State = false,
                 Name = "In",
+                Type = IO.TypeIO.Input,
                 Parent = this,
             });
             IOs.Add(new IO {
                 Position = new Vector2(triangleRightPos.X + commonDimensionValue, triangleRightPos.Y),
                 State = true,
                 Name = "Out",
+                Type = IO.TypeIO.Output,
                 Parent = this
             });
         }
@@ -39,20 +41,20 @@ namespace HWEmu.Gates
         {
             if (inverter.IOs[0].State)
             {
-                Raylib.DrawLineEx(inverter.IOs[0].Position, inverter.TriangleRight, lineThick, Color.Blue);
+                Raylib.DrawLineEx(inverter.IOs[0].Position, inverter.TriangleRight, lineThick, Color.DarkBlue);
             }
             else
             {
-                Raylib.DrawLineEx(inverter.IOs[0].Position, inverter.TriangleRight, lineThick, Color.Gray);
+                Raylib.DrawLineEx(inverter.IOs[0].Position, inverter.TriangleRight, lineThick, Color.DarkGray);
             }
 
             if (inverter.IOs[1].State == false)
             {
-                Raylib.DrawLineEx(inverter.TriangleRight, inverter.IOs[1].Position, lineThick, Color.Gray);
+                Raylib.DrawLineEx(inverter.TriangleRight, inverter.IOs[1].Position, lineThick, Color.DarkGray);
             }
             else
             {
-                Raylib.DrawLineEx(inverter.TriangleRight, inverter.IOs[1].Position, lineThick, Color.Blue);
+                Raylib.DrawLineEx(inverter.TriangleRight, inverter.IOs[1].Position, lineThick, Color.DarkBlue);
             }
 
             Raylib.DrawTriangle(inverter.TriangleTop, inverter.TriangleBottom, inverter.TriangleRight, Color.White);
@@ -71,15 +73,15 @@ namespace HWEmu.Gates
             if(io.Name == "In")
             {
                 IOs[1].State = !IOs[0].State;
-            }
-            else
-            {
-                // Update Connector states
-                var connections = Program.Connections.FindAll(x => x.Connectable1.Guid == io.Guid || x.Connectable2.Guid == io.Guid);
-                Console.WriteLine("Connection count: " + connections.Count);
-                foreach(var connection in connections)
+
+                // Then update connectors that are related to this
+
+                foreach(Connector c in Program.Connectors)
                 {
-                    connection.State = !IOs[1].State;
+                    if(c.NewInput.Guid == IOs[1].Guid || c.OldOutput.Guid == IOs[1].Guid)
+                    {
+                        Program.ConnectorStateQueue.Add(c);
+                    }
                 }
             }
         }

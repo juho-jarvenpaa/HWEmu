@@ -8,8 +8,8 @@ namespace HWEmu
 {
     public class Connector
     {
-        public IO Connectable1;
-        public IO Connectable2;
+        public IO NewInput;
+        public IO OldOutput;
         public bool State = false;
     }
 }
