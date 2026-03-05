@@ -11,5 +11,6 @@ namespace HWEmu
         public required string Name { get; set; }
         public required bool State { get; set; }
         public Guid Guid { get; set; } = new Guid();
+        public required Connectable Parent { get; set; }
     }
 }

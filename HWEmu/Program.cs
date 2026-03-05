@@ -6,7 +6,9 @@ namespace HWEmu
 {
     internal class Program
     {
-        public static List<(Vector2, Vector2)> Connections = new List<(Vector2, Vector2)>();
+        public static List<Connector> Connections = new List<Connector>();
+
+        public static List<Connector> StateQueue = new List<Connector>();
 
         public static List<Psu> psus = new();
         public static List<Inverter> inverters = new();
@@ -78,8 +80,9 @@ namespace HWEmu
                                         if(io != SelectedIO)
                                         {
                                             // found connection
-                                            var tuple = (io.Position, SelectedIO.Position);
-                                            Connections.Add(tuple);
+                                            Connector c = new Connector() { Connectable1 = io, Connectable2 = SelectedIO};
+                                            Connections.Add(c);
+                                            StateQueue.Add(c);
                                             SelectedIO = null;
                                             break;
                                         }
@@ -131,7 +134,14 @@ namespace HWEmu
 
                 foreach (var c in Connections)
                 {
-                    Raylib.DrawLineEx(c.Item1, c.Item2, 10f, Color.Blue);
+                    if(c.State)
+                    {
+                        Raylib.DrawLineEx(c.Connectable1.Position, c.Connectable2.Position, 10f, Color.Blue);
+                    }
+                    else
+                    {
+                        Raylib.DrawLineEx(c.Connectable1.Position, c.Connectable2.Position, 10f, Color.Gray);
+                    }
                 }
 
                 if(draggingConnection)
@@ -183,7 +193,7 @@ namespace HWEmu
         {
             while (!token.IsCancellationRequested)
             {
-                Console.WriteLine("Logic happening");
+                //Console.WriteLine("Logic happening");
                 CalculateStates();
                 await Task.Delay(100);
             }
@@ -210,9 +220,23 @@ namespace HWEmu
             // Reset all states to original
 
             // Go over all components 
-            foreach (var psu in psus)
+            if(StateQueue.Count > 0)
             {
-
+                var item = StateQueue.First();
+                // Check if one of the connectors is true
+                if(item.Connectable1.State || item.Connectable2.State)
+                {
+                    item.Connectable1.State = true;
+                    item.Connectable2.State = true;
+                    item.Connectable1.Parent.IOStateChanged(item.Connectable1);
+                    item.Connectable2.Parent.IOStateChanged(item.Connectable2);
+                    item.State = true;
+                }
+                else
+                {
+                    item.State = false;
+                }
+                StateQueue.RemoveAt(0);
             }
         }
     }

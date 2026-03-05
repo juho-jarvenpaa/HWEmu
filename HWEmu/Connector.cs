@@ -8,8 +8,8 @@ namespace HWEmu
 {
     public class Connector
     {
-        public Vector2 PointA;
-        public Vector2 PointB;
-        public int pointRadius;
+        public IO Connectable1;
+        public IO Connectable2;
+        public bool State = false;
     }
 }

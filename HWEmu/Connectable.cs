@@ -16,5 +16,7 @@ namespace HWEmu
                 Raylib.DrawCircleV(io.Position, 10f, Color.Red);
             }
         }
+
+        public abstract void IOStateChanged(IO io);
     }
 }

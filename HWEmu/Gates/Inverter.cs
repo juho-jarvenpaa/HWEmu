@@ -24,12 +24,15 @@ namespace HWEmu.Gates
             IOs.Add(new IO {
                 Position = new Vector2(triangleRightPos.X - commonDimensionValue * 2, triangleRightPos.Y),
                 State = false,
-                Name = "In"
+                Name = "In",
+                Parent = this,
             });
             IOs.Add(new IO {
                 Position = new Vector2(triangleRightPos.X + commonDimensionValue, triangleRightPos.Y),
                 State = true,
-                Name = "Out"});
+                Name = "Out",
+                Parent = this
+            });
         }
 
         public static void DrawInverter(Inverter inverter)
@@ -59,6 +62,25 @@ namespace HWEmu.Gates
             if(Program.showLinkablePositions)
             {
                 DrawConnectionPoints(inverter.IOs);
+            }
+        }
+
+        public override void IOStateChanged(IO io)
+        {
+            // Input
+            if(io.Name == "In")
+            {
+                IOs[1].State = !IOs[0].State;
+            }
+            else
+            {
+                // Update Connector states
+                var connections = Program.Connections.FindAll(x => x.Connectable1.Guid == io.Guid || x.Connectable2.Guid == io.Guid);
+                Console.WriteLine("Connection count: " + connections.Count);
+                foreach(var connection in connections)
+                {
+                    connection.State = !IOs[1].State;
+                }
             }
         }
     }
