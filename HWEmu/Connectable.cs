@@ -17,6 +17,6 @@ namespace HWEmu
             }
         }
 
-        public abstract void CheckIfInputShouldChange(IO io, bool state);
+        public abstract void CheckIfInputShouldChange(Connector c);
     }
 }

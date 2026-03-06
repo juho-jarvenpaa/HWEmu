@@ -73,39 +73,31 @@ namespace HWEmu.Gates
             }
         }
 
-        public override void CheckIfInputShouldChange(IO io, bool state)
+        public override void CheckIfInputShouldChange(Connector connector)
         {
             // Check if state is different
-            if(IOs[0].State != state)
+            if(IOs[0].State != connector.State)
             {
-                bool trueFound = false;
+                bool ChangeInputState = true;
 
-                // Check if one of the connectors provides true
                 foreach (Connector c in Program.Connectors)
                 {
-                    if (c.NewInput.Guid == IOs[0].Guid)
+                    // Check if one of the connectors provides true
+                    if(c.State == true)
                     {
                         // Just make sure it is not the same connector
-                        if((c.NewInput.Guid != io.Guid))
+                        // So make sure that they have same input, different old output
+                        if (c.NewInput.Guid == connector.NewInput.Guid && c.OldOutput != connector.OldOutput)
                         {
-                            if (c.State == true)
-                            {
-                                Console.WriteLine("True found");
-                                trueFound = true;
-                            }
+                            ChangeInputState = false;
                         }
                     }
                 }
-
-                // Do nothing if state did not change
-                if(trueFound)
-                {
-
-                }
-                else
+                // if false constant true input is provide by another connector
+                if (ChangeInputState)
                 {
                     // Set the input state
-                    IOs[0].State = state;
+                    IOs[0].State = connector.State;
 
                     // Update output
                     IOs[1].State = !IOs[0].State;

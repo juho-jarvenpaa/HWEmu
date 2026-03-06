@@ -218,7 +218,7 @@ namespace HWEmu
             if(ConnectorStateQueue.Count > 0)
             {
                 var connector = ConnectorStateQueue.First();
-                connector.NewInput.Parent.CheckIfInputShouldChange(connector.NewInput, connector.State);
+                connector.NewInput.Parent.CheckIfInputShouldChange(connector);
                 ConnectorStateQueue.RemoveAt(0);
             }
         }
