@@ -90,6 +90,7 @@ namespace HWEmu.Gates
                         {
                             if (c.State == true)
                             {
+                                Console.WriteLine("True found");
                                 trueFound = true;
                             }
                         }
@@ -114,6 +115,8 @@ namespace HWEmu.Gates
                     {
                         if (c.OldOutput.Guid == IOs[1].Guid)
                         {
+                            // Set connector state
+                            c.State = IOs[1].State;
                             Program.ConnectorStateQueue.Add(c);
                         }
                     }
