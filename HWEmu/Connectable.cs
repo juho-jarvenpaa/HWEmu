@@ -17,6 +17,6 @@ namespace HWEmu
             }
         }
 
-        public abstract void IOStateChanged(IO io);
+        public abstract void CheckIfInputShouldChange(IO io, bool state);
     }
 }

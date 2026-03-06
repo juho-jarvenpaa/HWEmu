@@ -88,9 +88,9 @@ namespace HWEmu
                                         if(io.Type == IO.TypeIO.Input)
                                         {
                                             Connector c = new Connector() { OldOutput = SelectedOldOutput, NewInput = io };
+                                            c.State = SelectedOldOutput.State;
                                             Connectors.Add(c);
                                             ConnectorStateQueue.Add(c);
-                                            c.State = SelectedOldOutput.State;
                                             break;
                                         }
                                         else
@@ -109,6 +109,7 @@ namespace HWEmu
                             }
                         }
 
+                        SelectedOldOutput = null;
                         draggingConnection = false;
                     }
                 }
@@ -217,8 +218,7 @@ namespace HWEmu
             if(ConnectorStateQueue.Count > 0)
             {
                 var connector = ConnectorStateQueue.First();
-                connector.NewInput.State = connector.State;
-                connector.NewInput.Parent.IOStateChanged(connector.NewInput);
+                connector.NewInput.Parent.CheckIfInputShouldChange(connector.NewInput, connector.State);
                 ConnectorStateQueue.RemoveAt(0);
             }
         }
