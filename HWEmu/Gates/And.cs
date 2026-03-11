@@ -6,7 +6,7 @@ using System.Text;
 
 namespace HWEmu.Gates
 {
-    public class Or : Connectable
+    public class And : Connectable
     {
         public Rectangle Rectangle { get; set; }
         private Vector2 RightCircleCenter { get; set; }
@@ -14,10 +14,10 @@ namespace HWEmu.Gates
         const float circleRadius = 50;
         const float lineThick = 10;
 
-        public Or(Rectangle rectangle)
+        public And(Rectangle rectangle)
         {
             Rectangle = rectangle;
-            RightCircleCenter = new Vector2(Rectangle.Position.X + Rectangle.Width, Rectangle.Position.Y + (Rectangle.Height/2));
+            RightCircleCenter = new Vector2(Rectangle.Position.X + Rectangle.Width, Rectangle.Position.Y + (Rectangle.Height / 2));
 
             IOs.Add(new IO
             {
@@ -48,44 +48,44 @@ namespace HWEmu.Gates
             });
         }
 
-        public static void DrawOr(Or or)
+        public static void DrawAnd(And and)
         {
-            Raylib.DrawRectangleRec(or.Rectangle, Color.White);
-            Raylib.DrawCircle((int)or.Rectangle.X, (int)or.RightCircleCenter.Y, circleRadius, Color.Black);
-
-            if (or.IOs[0].State)
+            if (and.IOs[0].State)
             {
-                Raylib.DrawLineEx(or.IOs[0].Position, or.RightCircleCenter, lineThick, Color.DarkBlue);
+                Raylib.DrawLineEx(and.IOs[0].Position, and.RightCircleCenter, lineThick, Color.DarkBlue);
             }
             else
             {
-                Raylib.DrawLineEx(or.IOs[0].Position, or.RightCircleCenter, lineThick, Color.DarkGray);
+                Raylib.DrawLineEx(and.IOs[0].Position, and.RightCircleCenter, lineThick, Color.DarkGray);
             }
 
-            if (or.IOs[1].State)
+            if (and.IOs[1].State)
             {
-                Raylib.DrawLineEx(or.IOs[1].Position, or.RightCircleCenter, lineThick, Color.DarkBlue);
+                Raylib.DrawLineEx(and.IOs[1].Position, and.RightCircleCenter, lineThick, Color.DarkBlue);
             }
             else
             {
-                Raylib.DrawLineEx(or.IOs[1].Position, or.RightCircleCenter, lineThick, Color.DarkGray);
+                Raylib.DrawLineEx(and.IOs[1].Position, and.RightCircleCenter, lineThick, Color.DarkGray);
             }
+
+            Raylib.DrawRectangleRec(and.Rectangle, Color.White);
+
 
             // output
-            if (or.IOs[2].State)
+            if (and.IOs[2].State)
             {
-                Raylib.DrawLineEx(or.RightCircleCenter, or.IOs[2].Position, lineThick, Color.DarkBlue);
+                Raylib.DrawLineEx(and.RightCircleCenter, and.IOs[2].Position, lineThick, Color.DarkBlue);
             }
             else
             {
-                Raylib.DrawLineEx(or.RightCircleCenter, or.IOs[2].Position, lineThick, Color.DarkGray);
+                Raylib.DrawLineEx(and.RightCircleCenter, and.IOs[2].Position, lineThick, Color.DarkGray);
             }
 
-            Raylib.DrawCircle((int)or.RightCircleCenter.X, (int)or.RightCircleCenter.Y, circleRadius, Color.White);
+            Raylib.DrawCircle((int)and.RightCircleCenter.X, (int)and.RightCircleCenter.Y, circleRadius, Color.White);
 
             if (Program.showLinkablePositions)
             {
-                DrawConnectionPoints(or.IOs);
+                DrawConnectionPoints(and.IOs);
             }
         }
 
@@ -125,7 +125,7 @@ namespace HWEmu.Gates
                     // Update output
                     // actual or logic
 
-                    if (IOs[0].State == true || IOs[1].State == true)
+                    if (IOs[0].State == true && IOs[1].State == true)
                     {
                         IOs[2].State = true;
                     }

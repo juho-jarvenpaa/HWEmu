@@ -13,6 +13,7 @@ namespace HWEmu
         public static List<Psu> psus = new();
         public static List<Inverter> inverters = new();
         public static List<Or> ors = new();
+        public static List<And> ands = new();
 
         public static CancellationTokenSource? _logicCts;
         public static Task? _logicTask;
@@ -50,6 +51,29 @@ namespace HWEmu
                             foreach (var or in ors)
                             {
                                 foreach (var io in or.IOs)
+                                {
+                                    if (PointCloseEnough(mousePosVec2, io.Position))
+                                    {
+                                        if (io.Type == IO.TypeIO.Output)
+                                        {
+                                            SelectedOldOutput = io;
+                                            break;
+                                        }
+                                        else
+                                        {
+                                            Console.WriteLine("Select first output");
+                                        }
+                                    }
+                                }
+                                if (SelectedOldOutput != null)
+                                {
+                                    break;
+                                }
+                            }
+
+                            foreach (var and in ands)
+                            {
+                                foreach (var io in and.IOs)
                                 {
                                     if (PointCloseEnough(mousePosVec2, io.Position))
                                     {
@@ -161,6 +185,35 @@ namespace HWEmu
                                     break;
                                 }
                             }
+                            foreach (var and in ands)
+                            {
+                                foreach (var io in and.IOs)
+                                {
+                                    if (PointCloseEnough(mousePosVec2, io.Position))
+                                    {
+                                        // found connection
+                                        if (io.Type == IO.TypeIO.Input)
+                                        {
+                                            Connector c = new Connector() { OldOutput = SelectedOldOutput, NewInput = io };
+                                            c.State = SelectedOldOutput.State;
+                                            Connectors.Add(c);
+                                            ConnectorStateQueue.Add(c);
+                                            break;
+                                        }
+                                        else
+                                        {
+                                            Console.WriteLine("Can't connect same types of IO");
+                                        }
+                                        SelectedOldOutput = null;
+                                        draggingConnection = false;
+
+                                    }
+                                }
+                                if (SelectedOldOutput == null)
+                                {
+                                    break;
+                                }
+                            }
                         }
 
                         SelectedOldOutput = null;
@@ -177,6 +230,16 @@ namespace HWEmu
 
                         Or or = new(new Rectangle(mousePosVec2, psuSize));
                         ors.Add(or);
+
+                        StartStateUpdateLoop();
+                    }
+
+                    if (Raylib.IsMouseButtonPressed(MouseButton.Middle))
+                    {
+                        StopStateUpdates();
+
+                        And and = new(new Rectangle(mousePosVec2, psuSize));
+                        ands.Add(and);
 
                         StartStateUpdateLoop();
                     }
@@ -200,6 +263,9 @@ namespace HWEmu
 
                 foreach (var or in ors)
                     Or.DrawOr(or);
+
+                foreach (var and in ands)
+                    And.DrawAnd(and);
 
                 foreach (var c in Connectors)
                 {
