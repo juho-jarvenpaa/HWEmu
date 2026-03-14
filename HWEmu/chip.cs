@@ -13,7 +13,7 @@ namespace HWEmu
 
         public required string ChipName { get; set; }
 
-        public string CurrentBinaryState { get; set; } = "";
+        public string CurrentBinaryInputState { get; set; } = "";
 
         public static void RecalculateIOPositions(Chip chip)
         {
@@ -97,13 +97,13 @@ namespace HWEmu
                         Inputs[inputIndex].State = connector.State;
 
                         // Get oldOutput string
-                        var oldOutputString = binaryStateTable[CurrentBinaryState];
+                        var oldOutputString = binaryStateTable[CurrentBinaryInputState];
 
                         // Replace input in inputString
-                        CurrentBinaryState = CurrentBinaryState.Remove(inputIndex, 1).Insert(inputIndex, connector.State ? "0" : "1");
+                        CurrentBinaryInputState = CurrentBinaryInputState.Remove(inputIndex, 1).Insert(inputIndex, connector.State ? "1" : "0");
 
                         // Get newoutput string
-                        var newOutputString = binaryStateTable[CurrentBinaryState];
+                        var newOutputString = binaryStateTable[CurrentBinaryInputState];
 
                         // Update outputs
                         // Form list of ouputs that has changed
@@ -135,6 +135,7 @@ namespace HWEmu
 
                         foreach (Output output in OutputsToChange)
                         {
+                            output.State = !output.State;
                             // Then update connectors that are related to output
                             foreach (Connector c in Program.Connectors)
                             {

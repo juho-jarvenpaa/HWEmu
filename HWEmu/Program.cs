@@ -43,14 +43,14 @@ namespace HWEmu
 
             foreach (string chipFile in files)
             {
-                chipList.Add(new Chip{binaryStateTable = new Dictionary<string, string>(), ChipName = Path.GetFileNameWithoutExtension(chipFile)});
+                chipList.Add(new Chip { binaryStateTable = new Dictionary<string, string>(), ChipName = Path.GetFileNameWithoutExtension(chipFile) });
 
                 var lines = File.ReadAllLines(chipFile);
                 int lineIterator = 0;
                 foreach (string line in lines)
                 {
                     string trimmedLine = line.Replace(" ", String.Empty);
-                    
+
                     // Header line
                     if (lineIterator == 0)
                     {
@@ -61,9 +61,9 @@ namespace HWEmu
                             switch (c)
                             {
                                 case '|':
-                                    if(IOName != "")
+                                    if (IOName != "")
                                     {
-                                        if(inputs)
+                                        if (inputs)
                                         {
                                             chipList[chipfileIterator].Inputs.Add(new Input
                                             {
@@ -95,14 +95,14 @@ namespace HWEmu
 
                                 default:
                                     IOName += c;
-                                break;
+                                    break;
                             }
                         }
                     }
                     // Do notthing
                     //if(lineIterator == 1) { }
 
-                    if(lineIterator > 1)
+                    if (lineIterator > 1)
                     {
                         string inputsBinary = "";
                         string binaryToAdd = "";
@@ -128,15 +128,58 @@ namespace HWEmu
                         // Add default state for the chip // TODO move out of the loop
                         if (lineIterator == 2)
                         {
-                            chipList[chipfileIterator].CurrentBinaryState = inputsBinary;
+                            chipList[chipfileIterator].CurrentBinaryInputState = inputsBinary;
                         }
                     }
 
                     lineIterator++;
                 }
 
-                chipList[chipfileIterator].Rectangle = new Rectangle(0f, 0f, 400f, 400f);
+                // Check the default output values
+                var newOutputString = chipList[chipfileIterator].binaryStateTable[chipList[chipfileIterator].CurrentBinaryInputState];
 
+                string oldOutputString = "";
+
+                foreach (var item in chipList[chipfileIterator].Outputs)
+                {
+                    oldOutputString += "0";
+                }
+
+                //////////////////////////////
+                // Update values
+                List<int> outputIndexesToChange = new List<int>();
+
+                int outputIndex = 0;
+                foreach (char output in oldOutputString)
+                {
+                    if (newOutputString[outputIndex] == oldOutputString[outputIndex])
+                    {
+                        // No need to change this index
+                    }
+                    else
+                    {
+                        outputIndexesToChange.Add(outputIndex);
+                    }
+                    outputIndex++;
+                }
+
+                List<Output> OutputsToChange = new List<Output>();
+                foreach (var indexItem in outputIndexesToChange)
+                {
+                    OutputsToChange.Add(chipList[chipfileIterator].Outputs[indexItem]);
+                }
+
+                foreach (Output output in OutputsToChange)
+                {
+                    output.State = !output.State;
+                }
+
+                ///////////////////////////////////////
+
+
+
+
+                chipList[chipfileIterator].Rectangle = new Rectangle(0f, 0f, 400f, 400f);
 
                 // Add positions for IO's
                 var inputCount = chipList[chipfileIterator].Inputs.Count();
