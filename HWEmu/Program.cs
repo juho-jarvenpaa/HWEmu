@@ -207,6 +207,14 @@ namespace HWEmu
             Chips[0].Rectangle = new Rectangle(400f, 400f, Chips[0].Rectangle.Width, Chips[0].Rectangle.Height);
             Chip.RecalculateIOPositions(Chips[0]);
 
+            Chips.Add(chipList[1]);
+            Chips[1].Rectangle = new Rectangle(1200f, 400f, Chips[1].Rectangle.Width, Chips[1].Rectangle.Height);
+            Chip.RecalculateIOPositions(Chips[1]);
+
+            Chips.Add(chipList[2]);
+            Chips[2].Rectangle = new Rectangle(400f, 1200f, Chips[2].Rectangle.Width, Chips[2].Rectangle.Height);
+            Chip.RecalculateIOPositions(Chips[2]);
+
             while (!Raylib.WindowShouldClose())
             {
                 Raylib.ClearBackground(Color.Black);
