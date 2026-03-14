@@ -180,6 +180,22 @@ namespace HWEmu
                         {
                             // Iterate over all ui items to see if something is close
 
+                            foreach (var chip in Chips)
+                            {
+                                foreach (var o in chip.Outputs)
+                                {
+                                    if (PointCloseEnough(mousePosVec2, o.Position))
+                                    {
+                                        SelectedOldOutput = o;
+                                        break;
+                                    }
+                                }
+                                if (SelectedOldOutput != null)
+                                {
+                                    break;
+                                }
+                            }
+
                             foreach (var or in ors)
                             {
                                 foreach (var o in or.Outputs)
@@ -238,6 +254,27 @@ namespace HWEmu
                         if(draggingConnection)
                         {
                             // Iterate over all ui items to see if something is close
+
+                            foreach (var chip in Chips)
+                            {
+                                foreach (var io in chip.Inputs)
+                                {
+                                    if (PointCloseEnough(mousePosVec2, io.Position))
+                                    {
+                                        // found connection
+                                        Connector c = new Connector() { OldOutput = SelectedOldOutput, NewInput = io };
+                                        c.State = SelectedOldOutput.State;
+                                        Connectors.Add(c);
+                                        ConnectorStateQueue.Add(c);
+                                        break;
+                                    }
+                                }
+                                if (SelectedOldOutput == null)
+                                {
+                                    break;
+                                }
+                            }
+
                             foreach (var i in inverters)
                             {
                                 foreach (var io in i.Inputs)

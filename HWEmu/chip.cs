@@ -59,6 +59,11 @@ namespace HWEmu
 
             Raylib.DrawRectangleRec(chip.Rectangle, Color.White);
             Raylib.DrawText(chip.ChipName, (int)chip.Rectangle.X + 50, (int)chip.Rectangle.Y + 50, 80, Color.Red);
+
+            if (Program.showLinkablePositions)
+            {
+                DrawConnectionPoints(chip.Inputs, chip.Outputs);
+            }
         }
 
         public override void CheckIfInputShouldChange(Connector connector)
