@@ -19,73 +19,70 @@ namespace HWEmu.Gates
             Rectangle = rectangle;
             RightCircleCenter = new Vector2(Rectangle.Position.X + Rectangle.Width, Rectangle.Position.Y + (Rectangle.Height / 2));
 
-            IOs.Add(new IO
+            Inputs.Add(new Input
             {
                 Position = new Vector2(Rectangle.Position.X - 30, Rectangle.Position.Y + 20),
                 State = false,
                 Name = "InA",
                 Guid = Guid.NewGuid(),
-                Type = IO.TypeIO.Input,
                 Parent = this,
             });
-            IOs.Add(new IO
+            Inputs.Add(new Input
             {
                 Position = new Vector2(Rectangle.Position.X - 30, Rectangle.Position.Y + 70),
                 State = false,
                 Name = "InB",
                 Guid = Guid.NewGuid(),
-                Type = IO.TypeIO.Input,
                 Parent = this,
             });
-            IOs.Add(new IO
+            Outputs.Add(new Output
             {
                 Position = new Vector2(Rectangle.Position.X + Rectangle.Width + 80, Rectangle.Position.Y + (Rectangle.Height / 2)),
                 State = false,
                 Guid = Guid.NewGuid(),
                 Name = "Out",
-                Type = IO.TypeIO.Output,
                 Parent = this
             });
         }
 
         public static void DrawAnd(And and)
         {
-            if (and.IOs[0].State)
+            if (and.Inputs[0].State)
             {
-                Raylib.DrawLineEx(and.IOs[0].Position, and.RightCircleCenter, lineThick, Color.DarkBlue);
+                Raylib.DrawLineEx(and.Inputs[0].Position, and.RightCircleCenter, lineThick, Color.DarkBlue);
             }
             else
             {
-                Raylib.DrawLineEx(and.IOs[0].Position, and.RightCircleCenter, lineThick, Color.DarkGray);
+                Raylib.DrawLineEx(and.Inputs[0].Position, and.RightCircleCenter, lineThick, Color.DarkGray);
             }
 
-            if (and.IOs[1].State)
+            if (and.Inputs[1].State)
             {
-                Raylib.DrawLineEx(and.IOs[1].Position, and.RightCircleCenter, lineThick, Color.DarkBlue);
+                Raylib.DrawLineEx(and.Inputs[1].Position, and.RightCircleCenter, lineThick, Color.DarkBlue);
             }
             else
             {
-                Raylib.DrawLineEx(and.IOs[1].Position, and.RightCircleCenter, lineThick, Color.DarkGray);
+                Raylib.DrawLineEx(and.Inputs[1].Position, and.RightCircleCenter, lineThick, Color.DarkGray);
             }
 
             Raylib.DrawRectangleRec(and.Rectangle, Color.White);
 
 
             // output
-            if (and.IOs[2].State)
+            if (and.Outputs[0].State)
             {
-                Raylib.DrawLineEx(and.RightCircleCenter, and.IOs[2].Position, lineThick, Color.DarkBlue);
+                Raylib.DrawLineEx(and.RightCircleCenter, and.Outputs[0].Position, lineThick, Color.DarkBlue);
             }
             else
             {
-                Raylib.DrawLineEx(and.RightCircleCenter, and.IOs[2].Position, lineThick, Color.DarkGray);
+                Raylib.DrawLineEx(and.RightCircleCenter, and.Outputs[0].Position, lineThick, Color.DarkGray);
             }
 
             Raylib.DrawCircle((int)and.RightCircleCenter.X, (int)and.RightCircleCenter.Y, circleRadius, Color.White);
 
             if (Program.showLinkablePositions)
             {
-                DrawConnectionPoints(and.IOs);
+                DrawConnectionPoints(and.Inputs, and.Outputs);
             }
         }
 
@@ -93,13 +90,13 @@ namespace HWEmu.Gates
         {
             // First check which input we are changing
             int index = 0;
-            if (connector.NewInput.Guid == IOs[1].Guid)
+            if (connector.NewInput.Guid == Inputs[1].Guid)
             {
                 index++;
             }
 
             // Check if state is different
-            if (IOs[index].State != connector.State)
+            if (Inputs[index].State != connector.State)
             {
                 bool ChangeInputState = true;
 
@@ -120,27 +117,27 @@ namespace HWEmu.Gates
                 if (ChangeInputState)
                 {
                     // Set the input state
-                    IOs[index].State = connector.State;
+                    Inputs[index].State = connector.State;
 
                     // Update output
                     // actual or logic
 
-                    if (IOs[0].State == true && IOs[1].State == true)
+                    if (Inputs[0].State == true && Inputs[1].State == true)
                     {
-                        IOs[2].State = true;
+                        Outputs[0].State = true;
                     }
                     else
                     {
-                        IOs[2].State = false;
+                        Outputs[0].State = false;
                     }
 
                     // then update connectors that are related to output
                     foreach (Connector c in Program.Connectors)
                     {
-                        if (c.OldOutput.Guid == IOs[2].Guid)
+                        if (c.OldOutput.Guid == Outputs[0].Guid)
                         {
                             // set connector state
-                            c.State = IOs[2].State;
+                            c.State = Outputs[0].State;
                             Program.ConnectorStateQueue.Add(c);
                         }
                     }

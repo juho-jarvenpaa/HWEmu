@@ -7,6 +7,7 @@ namespace HWEmu
     internal class Program
     {
         public static List<Connector> Connectors = new List<Connector>();
+        public static List<Chip> Chips = new List<Chip>();
 
         public static List<Connector> ConnectorStateQueue = new List<Connector>();
 
@@ -20,7 +21,7 @@ namespace HWEmu
 
         public static bool showLinkablePositions = false;
         public static bool draggingConnection = false;
-        public static IO SelectedOldOutput = null;
+        public static Output SelectedOldOutput = null;
 
         static async Task Main(string[] args)
         {
@@ -64,25 +65,23 @@ namespace HWEmu
                                     {
                                         if(inputs)
                                         {
-                                            chipList[chipfileIterator].IOs.Add(new IO
+                                            chipList[chipfileIterator].Inputs.Add(new Input
                                             {
                                                 Position = new Vector2(),
                                                 State = false,
                                                 Name = IOName,
                                                 Guid = Guid.NewGuid(),
-                                                Type = IO.TypeIO.Input,
                                                 Parent = chipList[chipfileIterator],
                                             });
                                         }
                                         else
                                         {
-                                            chipList[chipfileIterator].IOs.Add(new IO
+                                            chipList[chipfileIterator].Outputs.Add(new Output
                                             {
                                                 Position = new Vector2(),
                                                 State = false,
                                                 Name = IOName,
                                                 Guid = Guid.NewGuid(),
-                                                Type = IO.TypeIO.Output,
                                                 Parent = chipList[chipfileIterator],
                                             });
                                         }
@@ -138,6 +137,9 @@ namespace HWEmu
                 chipfileIterator++;
             }
 
+            Chips.Add(chipList[0]);
+            Chips[0].Rectangle = new Rectangle(600f, 600f, 600f, 600f);
+
             while (!Raylib.WindowShouldClose())
             {
                 Raylib.ClearBackground(Color.Black);
@@ -156,19 +158,12 @@ namespace HWEmu
 
                             foreach (var or in ors)
                             {
-                                foreach (var io in or.IOs)
+                                foreach (var o in or.Outputs)
                                 {
-                                    if (PointCloseEnough(mousePosVec2, io.Position))
+                                    if (PointCloseEnough(mousePosVec2, o.Position))
                                     {
-                                        if (io.Type == IO.TypeIO.Output)
-                                        {
-                                            SelectedOldOutput = io;
-                                            break;
-                                        }
-                                        else
-                                        {
-                                            Console.WriteLine("Select first output");
-                                        }
+                                        SelectedOldOutput = o;
+                                        break;
                                     }
                                 }
                                 if (SelectedOldOutput != null)
@@ -179,19 +174,12 @@ namespace HWEmu
 
                             foreach (var and in ands)
                             {
-                                foreach (var io in and.IOs)
+                                foreach (var o in and.Outputs)
                                 {
-                                    if (PointCloseEnough(mousePosVec2, io.Position))
+                                    if (PointCloseEnough(mousePosVec2, o.Position))
                                     {
-                                        if (io.Type == IO.TypeIO.Output)
-                                        {
-                                            SelectedOldOutput = io;
-                                            break;
-                                        }
-                                        else
-                                        {
-                                            Console.WriteLine("Select first output");
-                                        }
+                                        SelectedOldOutput = o;
+                                        break;
                                     }
                                 }
                                 if (SelectedOldOutput != null)
@@ -202,19 +190,12 @@ namespace HWEmu
 
                             foreach (var i in inverters)
                             {
-                                foreach (var io in i.IOs)
+                                foreach (var io in i.Outputs)
                                 {
                                     if (PointCloseEnough(mousePosVec2, io.Position))
                                     {
-                                        if(io.Type == IO.TypeIO.Output)
-                                        {
-                                            SelectedOldOutput = io;
-                                            break;
-                                        }
-                                        else
-                                        {
-                                            Console.WriteLine("Select first output");
-                                        }
+                                        SelectedOldOutput = io;
+                                        break;
                                     }
                                 }
                                 if(SelectedOldOutput != null)
@@ -235,26 +216,16 @@ namespace HWEmu
                             // Iterate over all ui items to see if something is close
                             foreach (var i in inverters)
                             {
-                                foreach (var io in i.IOs)
+                                foreach (var io in i.Inputs)
                                 {
                                     if (PointCloseEnough(mousePosVec2, io.Position))
                                     {
                                         // found connection
-                                        if(io.Type == IO.TypeIO.Input)
-                                        {
-                                            Connector c = new Connector() { OldOutput = SelectedOldOutput, NewInput = io };
-                                            c.State = SelectedOldOutput.State;
-                                            Connectors.Add(c);
-                                            ConnectorStateQueue.Add(c);
-                                            break;
-                                        }
-                                        else
-                                        {
-                                            Console.WriteLine("Can't connect same types of IO");
-                                        }
-                                        SelectedOldOutput = null;
-                                        draggingConnection = false;
-
+                                        Connector c = new Connector() { OldOutput = SelectedOldOutput, NewInput = io };
+                                        c.State = SelectedOldOutput.State;
+                                        Connectors.Add(c);
+                                        ConnectorStateQueue.Add(c);
+                                        break;
                                     }
                                 }
                                 if (SelectedOldOutput == null)
@@ -264,26 +235,16 @@ namespace HWEmu
                             }
                             foreach (var or in ors)
                             {
-                                foreach (var io in or.IOs)
+                                foreach (var io in or.Inputs)
                                 {
                                     if (PointCloseEnough(mousePosVec2, io.Position))
                                     {
                                         // found connection
-                                        if (io.Type == IO.TypeIO.Input)
-                                        {
-                                            Connector c = new Connector() { OldOutput = SelectedOldOutput, NewInput = io };
-                                            c.State = SelectedOldOutput.State;
-                                            Connectors.Add(c);
-                                            ConnectorStateQueue.Add(c);
-                                            break;
-                                        }
-                                        else
-                                        {
-                                            Console.WriteLine("Can't connect same types of IO");
-                                        }
-                                        SelectedOldOutput = null;
-                                        draggingConnection = false;
-
+                                        Connector c = new Connector() { OldOutput = SelectedOldOutput, NewInput = io };
+                                        c.State = SelectedOldOutput.State;
+                                        Connectors.Add(c);
+                                        ConnectorStateQueue.Add(c);
+                                        break;
                                     }
                                 }
                                 if (SelectedOldOutput == null)
@@ -293,26 +254,15 @@ namespace HWEmu
                             }
                             foreach (var and in ands)
                             {
-                                foreach (var io in and.IOs)
+                                foreach (var io in and.Inputs)
                                 {
                                     if (PointCloseEnough(mousePosVec2, io.Position))
                                     {
-                                        // found connection
-                                        if (io.Type == IO.TypeIO.Input)
-                                        {
-                                            Connector c = new Connector() { OldOutput = SelectedOldOutput, NewInput = io };
-                                            c.State = SelectedOldOutput.State;
-                                            Connectors.Add(c);
-                                            ConnectorStateQueue.Add(c);
-                                            break;
-                                        }
-                                        else
-                                        {
-                                            Console.WriteLine("Can't connect same types of IO");
-                                        }
-                                        SelectedOldOutput = null;
-                                        draggingConnection = false;
-
+                                        Connector c = new Connector() { OldOutput = SelectedOldOutput, NewInput = io };
+                                        c.State = SelectedOldOutput.State;
+                                        Connectors.Add(c);
+                                        ConnectorStateQueue.Add(c);
+                                        break;
                                     }
                                 }
                                 if (SelectedOldOutput == null)
@@ -360,6 +310,11 @@ namespace HWEmu
                 }
 
                 Raylib.BeginDrawing();
+
+                foreach(Chip chip in Chips)
+                {
+                    //Chip.DrawChip(chip);
+                }
 
                 foreach (var psu in psus)
                     Psu.DrawPSU(psu);

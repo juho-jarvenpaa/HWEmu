@@ -21,42 +21,40 @@ namespace HWEmu.Gates
             TriangleBottom = triangleRightPos + new Vector2(-commonDimensionValue, +commonDimensionValue);
             TriangleRight = triangleRightPos;
 
-            IOs.Add(new IO {
+            Inputs.Add(new Input {
                 Position = new Vector2(triangleRightPos.X - commonDimensionValue * 2, triangleRightPos.Y),
                 State = false,
                 Name = "In",
                 Guid = Guid.NewGuid(),
-                Type = IO.TypeIO.Input,
                 Parent = this,
             });
-            IOs.Add(new IO {
+            Outputs.Add(new Output {
                 Position = new Vector2(triangleRightPos.X + commonDimensionValue, triangleRightPos.Y),
                 State = true,
                 Guid = Guid.NewGuid(),
                 Name = "Out",
-                Type = IO.TypeIO.Output,
                 Parent = this
             });
         }
 
         public static void DrawInverter(Inverter inverter)
         {
-            if (inverter.IOs[0].State)
+            if (inverter.Inputs[0].State)
             {
-                Raylib.DrawLineEx(inverter.IOs[0].Position, inverter.TriangleRight, lineThick, Color.DarkBlue);
+                Raylib.DrawLineEx(inverter.Inputs[0].Position, inverter.TriangleRight, lineThick, Color.DarkBlue);
             }
             else
             {
-                Raylib.DrawLineEx(inverter.IOs[0].Position, inverter.TriangleRight, lineThick, Color.DarkGray);
+                Raylib.DrawLineEx(inverter.Inputs[0].Position, inverter.TriangleRight, lineThick, Color.DarkGray);
             }
 
-            if (inverter.IOs[1].State == false)
+            if (inverter.Outputs[0].State == false)
             {
-                Raylib.DrawLineEx(inverter.TriangleRight, inverter.IOs[1].Position, lineThick, Color.DarkGray);
+                Raylib.DrawLineEx(inverter.TriangleRight, inverter.Outputs[0].Position, lineThick, Color.DarkGray);
             }
             else
             {
-                Raylib.DrawLineEx(inverter.TriangleRight, inverter.IOs[1].Position, lineThick, Color.DarkBlue);
+                Raylib.DrawLineEx(inverter.TriangleRight, inverter.Outputs[0].Position, lineThick, Color.DarkBlue);
             }
 
             Raylib.DrawTriangle(inverter.TriangleTop, inverter.TriangleBottom, inverter.TriangleRight, Color.White);
@@ -69,14 +67,14 @@ namespace HWEmu.Gates
 
             if (Program.showLinkablePositions)
             {
-                DrawConnectionPoints(inverter.IOs);
+                DrawConnectionPoints(inverter.Inputs, inverter.Outputs);
             }
         }
 
         public override void CheckIfInputShouldChange(Connector connector)
         {
             // Check if state is different
-            if(IOs[0].State != connector.State)
+            if(Inputs[0].State != connector.State)
             {
                 bool ChangeInputState = true;
 
@@ -97,18 +95,18 @@ namespace HWEmu.Gates
                 if (ChangeInputState)
                 {
                     // Set the input state
-                    IOs[0].State = connector.State;
+                    Inputs[0].State = connector.State;
 
                     // Update output
-                    IOs[1].State = !IOs[0].State;
+                    Outputs[0].State = !Inputs[0].State;
 
                     // Then update connectors that are related to output
                     foreach (Connector c in Program.Connectors)
                     {
-                        if (c.OldOutput.Guid == IOs[1].Guid)
+                        if (c.OldOutput.Guid == Outputs[0].Guid)
                         {
                             // Set connector state
-                            c.State = IOs[1].State;
+                            c.State = Outputs[0].State;
                             Program.ConnectorStateQueue.Add(c);
                         }
                     }

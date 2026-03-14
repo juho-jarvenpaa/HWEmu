@@ -1,4 +1,6 @@
-﻿using Raylib_cs;
+﻿using HWEmu.Gates;
+using Raylib_cs;
+using System.Numerics;
 
 namespace HWEmu
 {
@@ -11,18 +13,42 @@ namespace HWEmu
 
         public string CurrentBinaryState { get; set; } = "";
 
-        public static void DrawChip()
+        public static void DrawChip(Chip chip)
         {
-            //Raylib.DrawLineEx(and.IOs[0].Position, and.RightCircleCenter, lineThick, Color.DarkGray);
+            Raylib.DrawRectangleRec(chip.Rectangle, Color.White);
+
+            foreach (var input in chip.Inputs)
+            {
+                if(input.State)
+                {
+                    Raylib.DrawLineEx(input.Position, chip.Rectangle.Position, 12, Color.DarkBlue);
+                }
+                else
+                {
+                    Raylib.DrawLineEx(input.Position, chip.Rectangle.Position, 12, Color.DarkGray);
+                }
+            }
+
+            foreach (var output in chip.Outputs)
+            {
+                if (output.State)
+                {
+                    Raylib.DrawLineEx(output.Position, chip.Rectangle.Position, 12, Color.DarkBlue);
+                }
+                else
+                {
+                    Raylib.DrawLineEx(output.Position, chip.Rectangle.Position, 12, Color.DarkGray);
+                }
+            }
         }
 
         public override void CheckIfInputShouldChange(Connector connector)
         {
-            int IOIndex = 0;
+            int inputIndex = 0;
 
-            foreach (var io in IOs)
+            foreach (var input in Inputs)
             {
-                if(io.Guid == connector.NewInput.Guid)
+                if(input.Guid == connector.NewInput.Guid)
                 {
                     // Check if input state has changed
                     bool ChangeInputState = true;
@@ -44,13 +70,13 @@ namespace HWEmu
                     if (ChangeInputState)
                     {
                         // Set the input state
-                        IOs[IOIndex].State = connector.State;
+                        Inputs[inputIndex].State = connector.State;
 
                         // Get oldOutput string
                         var oldOutputString = binaryStateTable[CurrentBinaryState];
 
                         // Replace input in inputString
-                        CurrentBinaryState = CurrentBinaryState.Remove(IOIndex, 1).Insert(IOIndex, connector.State ? "0" : "1");
+                        CurrentBinaryState = CurrentBinaryState.Remove(inputIndex, 1).Insert(inputIndex, connector.State ? "0" : "1");
 
                         // Get newoutput string
                         var newOutputString = binaryStateTable[CurrentBinaryState];
@@ -77,29 +103,18 @@ namespace HWEmu
                             outputIndex++;
                         }
 
-                        List<IO> IOOutputs = new List<IO>();
-
-                        foreach(IO o in IOs)
+                        List<Output> OutputsToChange = new List<Output>();
+                        foreach (var indexItem in outputIndexesToChange)
                         {
-                            if(o.Type == IO.TypeIO.Output)
-                            {
-                                IOOutputs.Add(o);
-                            }
+                            OutputsToChange.Add(Outputs[indexItem]);
                         }
 
-                        List<IO> IOsToChange = new List<IO>();
-
-                        foreach (var index in outputIndexesToChange)
-                        {
-                            IOsToChange.Add(IOOutputs[index]);
-                        }
-
-                        foreach (IO ioOutput in IOsToChange)
+                        foreach (Output output in OutputsToChange)
                         {
                             // Then update connectors that are related to output
                             foreach (Connector c in Program.Connectors)
                             {
-                                if (c.OldOutput.Guid == ioOutput.Guid)
+                                if (c.OldOutput.Guid == output.Guid)
                                 {
                                     // Set connector state to be the opposite that it was
                                     c.State = !c.State;
@@ -109,7 +124,7 @@ namespace HWEmu
                         }
                     }
                 }
-                IOIndex++;
+                inputIndex++;
             }
         }
     }
