@@ -43,7 +43,7 @@ namespace HWEmu
 
             foreach (string chipFile in files)
             {
-                chipList.Add(new Chip{binaryStateTable = new Dictionary<string, string>()});
+                chipList.Add(new Chip{binaryStateTable = new Dictionary<string, string>(), ChipName = Path.GetFileNameWithoutExtension(chipFile)});
 
                 var lines = File.ReadAllLines(chipFile);
                 int lineIterator = 0;
@@ -94,7 +94,8 @@ namespace HWEmu
                                     break;
 
                                 default:
-                                    break;
+                                    IOName += c;
+                                break;
                             }
                         }
                     }
@@ -124,9 +125,8 @@ namespace HWEmu
 
                         chipList[chipfileIterator].binaryStateTable.Add(inputsBinary, binaryToAdd);
 
-                        // Add default state for the chip
-
-                        if(lineIterator == 2)
+                        // Add default state for the chip // TODO move out of the loop
+                        if (lineIterator == 2)
                         {
                             chipList[chipfileIterator].CurrentBinaryState = inputsBinary;
                         }
@@ -134,11 +134,35 @@ namespace HWEmu
 
                     lineIterator++;
                 }
+
+                chipList[chipfileIterator].Rectangle = new Rectangle(0f, 0f, 400f, 400f);
+
+
+                // Add positions for IO's
+                var inputCount = chipList[chipfileIterator].Inputs.Count();
+                var outputCount = chipList[chipfileIterator].Outputs.Count();
+
+                float yPositionIncrementInputs = chipList[chipfileIterator].Rectangle.Height / (inputCount + 1);
+                float yPositionIncrementOutputs = chipList[chipfileIterator].Rectangle.Height / (outputCount + 1);
+
+                foreach (var input in chipList[chipfileIterator].Inputs)
+                {
+                    input.Position = new Vector2(chipList[chipfileIterator].Rectangle.X - 100, yPositionIncrementInputs);
+                    yPositionIncrementInputs += yPositionIncrementInputs;
+                }
+
+                foreach (var output in chipList[chipfileIterator].Outputs)
+                {
+                    output.Position = new Vector2(chipList[chipfileIterator].Rectangle.X + chipList[chipfileIterator].Rectangle.Width + 100, yPositionIncrementOutputs);
+                    yPositionIncrementInputs += yPositionIncrementInputs;
+                }
+
                 chipfileIterator++;
             }
 
             Chips.Add(chipList[0]);
-            Chips[0].Rectangle = new Rectangle(600f, 600f, 600f, 600f);
+            Chips[0].Rectangle = new Rectangle(400f, 400f, Chips[0].Rectangle.Width, Chips[0].Rectangle.Height);
+            Chip.RecalculateIOPositions(Chips[0]);
 
             while (!Raylib.WindowShouldClose())
             {
@@ -313,7 +337,7 @@ namespace HWEmu
 
                 foreach(Chip chip in Chips)
                 {
-                    //Chip.DrawChip(chip);
+                    Chip.DrawChip(chip);
                 }
 
                 foreach (var psu in psus)

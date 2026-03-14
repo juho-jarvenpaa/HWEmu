@@ -11,35 +11,54 @@ namespace HWEmu
         public int InputCount = 0;
         public int OutputCount = 0;
 
+        public required string ChipName { get; set; }
+
         public string CurrentBinaryState { get; set; } = "";
+
+        public static void RecalculateIOPositions(Chip chip)
+        {
+            foreach (var input in chip.Inputs)
+            {
+                input.Position += chip.Rectangle.Position;
+            }
+            foreach (var output in chip.Outputs)
+            {
+                output.Position += chip.Rectangle.Position;
+            }
+        }
 
         public static void DrawChip(Chip chip)
         {
-            Raylib.DrawRectangleRec(chip.Rectangle, Color.White);
-
             foreach (var input in chip.Inputs)
             {
                 if(input.State)
                 {
-                    Raylib.DrawLineEx(input.Position, chip.Rectangle.Position, 12, Color.DarkBlue);
+                    Raylib.DrawLineEx(input.Position, new Vector2(chip.Rectangle.Position.X, input.Position.Y), 12, Color.DarkBlue);
                 }
                 else
                 {
-                    Raylib.DrawLineEx(input.Position, chip.Rectangle.Position, 12, Color.DarkGray);
+                    Raylib.DrawLineEx(input.Position, new Vector2(chip.Rectangle.Position.X, input.Position.Y), 12, Color.DarkGray);
                 }
+
+                Raylib.DrawText(input.Name, (int)input.Position.X, (int)input.Position.Y - 100, 80, Color.Red);
             }
 
             foreach (var output in chip.Outputs)
             {
                 if (output.State)
                 {
-                    Raylib.DrawLineEx(output.Position, chip.Rectangle.Position, 12, Color.DarkBlue);
+                    Raylib.DrawLineEx(output.Position, new Vector2(chip.Rectangle.Position.X, output.Position.Y), 12, Color.DarkBlue);
                 }
                 else
                 {
-                    Raylib.DrawLineEx(output.Position, chip.Rectangle.Position, 12, Color.DarkGray);
+                    Raylib.DrawLineEx(output.Position, new Vector2(chip.Rectangle.Position.X, output.Position.Y), 12, Color.DarkGray);
                 }
+
+                Raylib.DrawText(output.Name, (int)output.Position.X, (int)output.Position.Y - 100, 80, Color.Red);
             }
+
+            Raylib.DrawRectangleRec(chip.Rectangle, Color.White);
+            Raylib.DrawText(chip.ChipName, (int)chip.Rectangle.X + 50, (int)chip.Rectangle.Y + 50, 80, Color.Red);
         }
 
         public override void CheckIfInputShouldChange(Connector connector)
