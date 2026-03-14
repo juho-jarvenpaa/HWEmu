@@ -9,6 +9,7 @@ namespace HWEmu
 
     public class Chip : Connectable
     {
+        public required Dictionary<string, string> binaryStateTable { get; set; }
 
         public static void DrawChip()
         {

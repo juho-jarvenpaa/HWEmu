@@ -42,7 +42,7 @@ namespace HWEmu
 
             foreach (string chipFile in files)
             {
-                chipList.Add(new Chip());
+                chipList.Add(new Chip{binaryStateTable = new Dictionary<string, string>()});
 
                 var lines = File.ReadAllLines(chipFile);
                 int lineIterator = 0;
@@ -104,7 +104,26 @@ namespace HWEmu
 
                     if(lineIterator > 1)
                     {
-                        // add state check table
+                        string inputsBinary = "";
+                        string binaryToAdd = "";
+
+                        foreach (char c in trimmedLine)
+                        {
+                            switch (c)
+                            {
+                                case '→':
+                                    inputsBinary = binaryToAdd;
+                                    binaryToAdd = "";
+                                    break;
+                                case '|':  // Ignore
+                                    break;
+                                default:
+                                    binaryToAdd += c;
+                                    break;
+                            }
+                        }
+
+                        chipList[chipfileIterator].binaryStateTable.Add(inputsBinary, binaryToAdd);
                     }
 
                     lineIterator++;
