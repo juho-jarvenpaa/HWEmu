@@ -124,6 +124,13 @@ namespace HWEmu
                         }
 
                         chipList[chipfileIterator].binaryStateTable.Add(inputsBinary, binaryToAdd);
+
+                        // Add default state for the chip
+
+                        if(lineIterator == 2)
+                        {
+                            chipList[chipfileIterator].CurrentBinaryState = inputsBinary;
+                        }
                     }
 
                     lineIterator++;
