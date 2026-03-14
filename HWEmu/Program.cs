@@ -32,6 +32,86 @@ namespace HWEmu
 
             StartStateUpdateLoop();
 
+            // load chips data
+            string path = System.AppDomain.CurrentDomain.BaseDirectory + "chips";
+            string[] files = Directory.GetFiles(path, "*.md");
+
+            List<Chip> chipList = new List<Chip>();
+
+            int chipfileIterator = 0;
+
+            foreach (string chipFile in files)
+            {
+                chipList.Add(new Chip());
+
+                var lines = File.ReadAllLines(chipFile);
+                int lineIterator = 0;
+                foreach (string line in lines)
+                {
+                    string trimmedLine = line.Replace(" ", String.Empty);
+                    
+                    // Header line
+                    if (lineIterator == 0)
+                    {
+                        bool inputs = true;
+                        string IOName = string.Empty;
+                        foreach (char c in trimmedLine)
+                        {
+                            switch (c)
+                            {
+                                case '|':
+                                    if(IOName != "")
+                                    {
+                                        if(inputs)
+                                        {
+                                            chipList[chipfileIterator].IOs.Add(new IO
+                                            {
+                                                Position = new Vector2(),
+                                                State = false,
+                                                Name = IOName,
+                                                Guid = Guid.NewGuid(),
+                                                Type = IO.TypeIO.Input,
+                                                Parent = chipList[chipfileIterator],
+                                            });
+                                        }
+                                        else
+                                        {
+                                            chipList[chipfileIterator].IOs.Add(new IO
+                                            {
+                                                Position = new Vector2(),
+                                                State = false,
+                                                Name = IOName,
+                                                Guid = Guid.NewGuid(),
+                                                Type = IO.TypeIO.Output,
+                                                Parent = chipList[chipfileIterator],
+                                            });
+                                        }
+                                        IOName = string.Empty;
+                                    }
+                                    break;
+
+                                case '→':
+                                    inputs = false;
+                                    break;
+
+                                default:
+                                    break;
+                            }
+                        }
+                    }
+                    // Do notthing
+                    //if(lineIterator == 1) { }
+
+                    if(lineIterator > 1)
+                    {
+                        // add state check table
+                    }
+
+                    lineIterator++;
+                }
+                chipfileIterator++;
+            }
+
             while (!Raylib.WindowShouldClose())
             {
                 Raylib.ClearBackground(Color.Black);
