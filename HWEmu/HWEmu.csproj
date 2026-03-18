@@ -12,6 +12,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="chips\4x1-MUX.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="chips\2x1-MUX.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="chips\NAND.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
