@@ -1,3 +1,6 @@
 <Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="Todo.md" />
+  </Folder>
   <Project Path="HWEmu/HWEmu.csproj" />
 </Solution>

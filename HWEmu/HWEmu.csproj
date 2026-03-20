@@ -12,6 +12,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="altChips\4x1-MUX.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="chips\4x1-MUX.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

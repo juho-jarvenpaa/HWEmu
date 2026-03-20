@@ -99,7 +99,7 @@ namespace HWEmu
                             }
                         }
                     }
-                    // Do notthing
+                    // Do nothing
                     //if(lineIterator == 1) { }
 
                     if (lineIterator > 1)
