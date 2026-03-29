@@ -10,7 +10,7 @@ namespace HWEmu
     {
         public static void DrawChipsAndConnecters()
         {
-            foreach (Chip chip in Program.Chips)
+            foreach (Chip chip in Program.ProjectChips)
             {
                 Chip.DrawChip(chip);
             }
@@ -37,6 +37,11 @@ namespace HWEmu
                 {
                     Raylib.DrawLineEx(c.NewInput.Position, c.OldOutput.Position, 10f, Color.Gray);
                 }
+            }
+
+            if (Program.draggingConnection)
+            {
+                Raylib.DrawLineEx(InputHandle.MousePosVec2, Program.SelectedOldOutput.Position, 10f, Color.Yellow);
             }
         }
     }
