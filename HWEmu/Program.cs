@@ -9,15 +9,10 @@ namespace HWEmu
         public static List<Connector> Connectors = new List<Connector>();
         public static List<Chip> Chips = new List<Chip>();
 
-        public static List<Connector> ConnectorStateQueue = new List<Connector>();
-
         public static List<Psu> psus = new();
         public static List<Inverter> inverters = new();
         public static List<Or> ors = new();
         public static List<And> ands = new();
-
-        public static CancellationTokenSource? _logicCts;
-        public static Task? _logicTask;
 
         public static bool showLinkablePositions = false;
         public static bool draggingConnection = false;
@@ -31,7 +26,7 @@ namespace HWEmu
             Raylib.InitWindow(1000, 1000, "HWEmu");
             Raylib.SetTargetFPS(60);
 
-            StartStateUpdateLoop();
+            Logic.StartStateUpdateLoop();
 
             // load chips data
             string path = System.AppDomain.CurrentDomain.BaseDirectory + "chips";
@@ -248,7 +243,7 @@ namespace HWEmu
                             {
                                 foreach (var o in chip.Outputs)
                                 {
-                                    if (PointCloseEnough(mousePosVec2, o.Position))
+                                    if (Logic.PointCloseEnough(mousePosVec2, o.Position))
                                     {
                                         SelectedOldOutput = o;
                                         break;
@@ -264,7 +259,7 @@ namespace HWEmu
                             {
                                 foreach (var o in or.Outputs)
                                 {
-                                    if (PointCloseEnough(mousePosVec2, o.Position))
+                                    if (Logic.PointCloseEnough(mousePosVec2, o.Position))
                                     {
                                         SelectedOldOutput = o;
                                         break;
@@ -280,7 +275,7 @@ namespace HWEmu
                             {
                                 foreach (var o in and.Outputs)
                                 {
-                                    if (PointCloseEnough(mousePosVec2, o.Position))
+                                    if (Logic.PointCloseEnough(mousePosVec2, o.Position))
                                     {
                                         SelectedOldOutput = o;
                                         break;
@@ -296,7 +291,7 @@ namespace HWEmu
                             {
                                 foreach (var io in i.Outputs)
                                 {
-                                    if (PointCloseEnough(mousePosVec2, io.Position))
+                                    if (Logic.PointCloseEnough(mousePosVec2, io.Position))
                                     {
                                         SelectedOldOutput = io;
                                         break;
@@ -323,13 +318,13 @@ namespace HWEmu
                             {
                                 foreach (var io in chip.Inputs)
                                 {
-                                    if (PointCloseEnough(mousePosVec2, io.Position))
+                                    if (Logic.PointCloseEnough(mousePosVec2, io.Position))
                                     {
                                         // found connection
                                         Connector c = new Connector() { OldOutput = SelectedOldOutput, NewInput = io };
                                         c.State = SelectedOldOutput.State;
                                         Connectors.Add(c);
-                                        ConnectorStateQueue.Add(c);
+                                        Logic.ConnectorStateQueue.Add(c);
                                         break;
                                     }
                                 }
@@ -343,13 +338,13 @@ namespace HWEmu
                             {
                                 foreach (var io in i.Inputs)
                                 {
-                                    if (PointCloseEnough(mousePosVec2, io.Position))
+                                    if (Logic.PointCloseEnough(mousePosVec2, io.Position))
                                     {
                                         // found connection
                                         Connector c = new Connector() { OldOutput = SelectedOldOutput, NewInput = io };
                                         c.State = SelectedOldOutput.State;
                                         Connectors.Add(c);
-                                        ConnectorStateQueue.Add(c);
+                                        Logic.ConnectorStateQueue.Add(c);
                                         break;
                                     }
                                 }
@@ -362,13 +357,13 @@ namespace HWEmu
                             {
                                 foreach (var io in or.Inputs)
                                 {
-                                    if (PointCloseEnough(mousePosVec2, io.Position))
+                                    if (Logic.PointCloseEnough(mousePosVec2, io.Position))
                                     {
                                         // found connection
                                         Connector c = new Connector() { OldOutput = SelectedOldOutput, NewInput = io };
                                         c.State = SelectedOldOutput.State;
                                         Connectors.Add(c);
-                                        ConnectorStateQueue.Add(c);
+                                        Logic.ConnectorStateQueue.Add(c);
                                         break;
                                     }
                                 }
@@ -381,12 +376,12 @@ namespace HWEmu
                             {
                                 foreach (var io in and.Inputs)
                                 {
-                                    if (PointCloseEnough(mousePosVec2, io.Position))
+                                    if (Logic.PointCloseEnough(mousePosVec2, io.Position))
                                     {
                                         Connector c = new Connector() { OldOutput = SelectedOldOutput, NewInput = io };
                                         c.State = SelectedOldOutput.State;
                                         Connectors.Add(c);
-                                        ConnectorStateQueue.Add(c);
+                                        Logic.ConnectorStateQueue.Add(c);
                                         break;
                                     }
                                 }
@@ -407,63 +402,36 @@ namespace HWEmu
 
                     if (Raylib.IsMouseButtonPressed(MouseButton.Left))
                     {
-                        StopStateUpdates();
+                        Logic.StopStateUpdates();
 
                         Or or = new(new Rectangle(mousePosVec2, psuSize));
                         ors.Add(or);
 
-                        StartStateUpdateLoop();
+                        Logic.StartStateUpdateLoop();
                     }
 
                     if (Raylib.IsMouseButtonPressed(MouseButton.Middle))
                     {
-                        StopStateUpdates();
+                        Logic.StopStateUpdates();
 
                         And and = new(new Rectangle(mousePosVec2, psuSize));
                         ands.Add(and);
 
-                        StartStateUpdateLoop();
+                        Logic.StartStateUpdateLoop();
                     }
 
                     if (Raylib.IsMouseButtonPressed(MouseButton.Right))
                     {
-                        StopStateUpdates();
+                        Logic.StopStateUpdates();
                         Inverter i = new Inverter(mousePosVec2);
                         inverters.Add(i);
-                        StartStateUpdateLoop();
+                        Logic.StartStateUpdateLoop();
                     }
                 }
 
                 Raylib.BeginDrawing();
 
-                foreach(Chip chip in Chips)
-                {
-                    Chip.DrawChip(chip);
-                }
-
-                foreach (var psu in psus)
-                    Psu.DrawPSU(psu);
-
-                foreach (var i in inverters)
-                    Inverter.DrawInverter(i);
-
-                foreach (var or in ors)
-                    Or.DrawOr(or);
-
-                foreach (var and in ands)
-                    And.DrawAnd(and);
-
-                foreach (var c in Connectors)
-                {
-                    if(c.State)
-                    {
-                        Raylib.DrawLineEx(c.NewInput.Position, c.OldOutput.Position, 10f, Color.Blue);
-                    }
-                    else
-                    {
-                        Raylib.DrawLineEx(c.NewInput.Position, c.OldOutput.Position, 10f, Color.Gray);
-                    }
-                }
+                Draw.DrawChipsAndConnecters();
 
                 if(draggingConnection)
                 {
@@ -473,62 +441,7 @@ namespace HWEmu
                 Raylib.EndDrawing();
             }
 
-            StopStateUpdates();
-        }
-
-        private static bool PointCloseEnough(Vector2 a, Vector2 b)
-        {
-            if(Raylib.CheckCollisionPointCircle(a,b,20f))
-            { 
-                return true;
-            }
-
-            return false;
-        }
-
-        private static void StartStateUpdateLoop()
-        {
-            _logicCts = new CancellationTokenSource();
-            _logicTask = Task.Run(() => StateCalcLoop(_logicCts.Token));
-            Console.WriteLine("Logic started");
-        }
-
-        private static void StopStateUpdates()
-        {
-            var cts = _logicCts;
-            var task = _logicTask;
-
-            if (cts == null || task == null)
-                return;
-
-            _logicCts = null;
-            _logicTask = null;
-
-            cts.Cancel();
-            Console.WriteLine("Logic cancel signal sent");
-            task.GetAwaiter().GetResult();
-            cts.Dispose();
-        }
-
-        private static async Task StateCalcLoop(CancellationToken token)
-        {
-            while (!token.IsCancellationRequested)
-            {
-                StateTick();
-                await Task.Delay(300);
-            }
-
-            Console.WriteLine("Logic stopped");
-        }
-
-        private static void StateTick()
-        {
-            if(ConnectorStateQueue.Count > 0)
-            {
-                var connector = ConnectorStateQueue.First();
-                connector.NewInput.Parent.CheckIfInputShouldChange(connector);
-                ConnectorStateQueue.RemoveAt(0);
-            }
+            Logic.StopStateUpdates();
         }
     }
 }

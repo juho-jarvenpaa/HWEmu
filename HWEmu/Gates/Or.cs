@@ -138,7 +138,7 @@ namespace HWEmu.Gates
                         {
                             // set connector state
                             c.State = Outputs[0].State;
-                            Program.ConnectorStateQueue.Add(c);
+                            Logic.ConnectorStateQueue.Add(c);
                         }
                     }
                 }

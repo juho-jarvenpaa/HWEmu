@@ -143,7 +143,7 @@ namespace HWEmu
                                 {
                                     // Set connector state to be the opposite that it was
                                     c.State = !c.State;
-                                    Program.ConnectorStateQueue.Add(c);
+                                    Logic.ConnectorStateQueue.Add(c);
                                 }
                             }
                         }

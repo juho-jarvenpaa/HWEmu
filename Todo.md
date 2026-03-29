@@ -19,4 +19,4 @@
    1. Mux16
    2. Half Adder
    3. Full Adder
-   4. 
+   4. ALU
