@@ -15,9 +15,6 @@ namespace HWEmu
                 Chip.DrawChip(chip);
             }
 
-            foreach (var psu in Program.psus)
-                Psu.DrawPSU(psu);
-
             foreach (var i in Program.inverters)
                 Inverter.DrawInverter(i);
 

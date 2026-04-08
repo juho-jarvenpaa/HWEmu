@@ -9,7 +9,6 @@ namespace HWEmu
         public static List<Connector> Connectors = new List<Connector>();
         public static List<Chip> ProjectChips = new List<Chip>();
 
-        public static List<Psu> psus = new();
         public static List<Inverter> inverters = new();
         public static List<Or> ors = new();
         public static List<And> ands = new();

@@ -11,31 +11,10 @@ namespace HWEmu
     {
         public static Vector2 MousePosVec2;
 
-        public static void TrySelectInput()
+
+        public static void SelectInputForGates(IEnumerable<Connectable> connectables)
         {
-            // Iterate over all ui items to see if something is close
-
-            foreach (var chip in Program.ProjectChips)
-            {
-                foreach (var io in chip.Inputs)
-                {
-                    if (Logic.PointCloseEnough(MousePosVec2, io.Position))
-                    {
-                        // found connection
-                        Connector c = new Connector() { OldOutput = Program.SelectedOldOutput, NewInput = io };
-                        c.State = Program.SelectedOldOutput.State;
-                        Program.Connectors.Add(c);
-                        Logic.ConnectorStateQueue.Add(c);
-                        break;
-                    }
-                }
-                if (Program.SelectedOldOutput == null)
-                {
-                    break;
-                }
-            }
-
-            foreach (var i in Program.inverters)
+            foreach (var i in connectables)
             {
                 foreach (var io in i.Inputs)
                 {
@@ -54,112 +33,43 @@ namespace HWEmu
                     break;
                 }
             }
-            foreach (var or in Program.ors)
+        }
+
+        public static void TrySelectOutputFor(IEnumerable<Connectable> connectables)
+        {
+            foreach (var c in connectables)
             {
-                foreach (var io in or.Inputs)
+                foreach (var o in c.Outputs)
                 {
-                    if (Logic.PointCloseEnough(MousePosVec2, io.Position))
+                    if (Logic.PointCloseEnough(MousePosVec2, o.Position))
                     {
-                        // found connection
-                        Connector c = new Connector() { OldOutput = Program.SelectedOldOutput, NewInput = io };
-                        c.State = Program.SelectedOldOutput.State;
-                        Program.Connectors.Add(c);
-                        Logic.ConnectorStateQueue.Add(c);
+                        Program.SelectedOldOutput = o;
                         break;
                     }
                 }
-                if (Program.SelectedOldOutput == null)
-                {
-                    break;
-                }
-            }
-            foreach (var and in Program.ands)
-            {
-                foreach (var io in and.Inputs)
-                {
-                    if (Logic.PointCloseEnough(MousePosVec2, io.Position))
-                    {
-                        Connector c = new Connector() { OldOutput = Program.SelectedOldOutput, NewInput = io };
-                        c.State = Program.SelectedOldOutput.State;
-                        Program.Connectors.Add(c);
-                        Logic.ConnectorStateQueue.Add(c);
-                        break;
-                    }
-                }
-                if (Program.SelectedOldOutput == null)
+                if (Program.SelectedOldOutput != null)
                 {
                     break;
                 }
             }
         }
 
+        public static void TrySelectInput()
+        {
+            // Iterate over all ui items to see if something is close
+            SelectInputForGates(Program.ProjectChips);
+            SelectInputForGates(Program.inverters);
+            SelectInputForGates(Program.ors);
+            SelectInputForGates(Program.ands);
+        }
+
         public static void TrySelectOutput()
         {
             // Iterate over all ui items to see if something is close
-
-            foreach (var chip in Program.ProjectChips)
-            {
-                foreach (var o in chip.Outputs)
-                {
-                    if (Logic.PointCloseEnough(MousePosVec2, o.Position))
-                    {
-                        Program.SelectedOldOutput = o;
-                        break;
-                    }
-                }
-                if (Program.SelectedOldOutput != null)
-                {
-                    break;
-                }
-            }
-
-            foreach (var or in Program.ors)
-            {
-                foreach (var o in or.Outputs)
-                {
-                    if (Logic.PointCloseEnough(MousePosVec2, o.Position))
-                    {
-                        Program.SelectedOldOutput = o;
-                        break;
-                    }
-                }
-                if (Program.SelectedOldOutput != null)
-                {
-                    break;
-                }
-            }
-
-            foreach (var and in Program.ands)
-            {
-                foreach (var o in and.Outputs)
-                {
-                    if (Logic.PointCloseEnough(MousePosVec2, o.Position))
-                    {
-                        Program.SelectedOldOutput = o;
-                        break;
-                    }
-                }
-                if (Program.SelectedOldOutput != null)
-                {
-                    break;
-                }
-            }
-
-            foreach (var i in Program.inverters)
-            {
-                foreach (var io in i.Outputs)
-                {
-                    if (Logic.PointCloseEnough(MousePosVec2, io.Position))
-                    {
-                        Program.SelectedOldOutput = io;
-                        break;
-                    }
-                }
-                if (Program.SelectedOldOutput != null)
-                {
-                    break;
-                }
-            }
+            TrySelectOutputFor(Program.ProjectChips);
+            TrySelectOutputFor(Program.ors);
+            TrySelectOutputFor(Program.ands);
+            TrySelectOutputFor(Program.inverters);
         }
 
         public static void ProcessInputsWithShift()
