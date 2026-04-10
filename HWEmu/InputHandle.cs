@@ -11,7 +11,6 @@ namespace HWEmu
     {
         public static Vector2 MousePosVec2;
 
-
         public static void SelectInputForGates(IEnumerable<Connectable> connectables)
         {
             foreach (var i in connectables)

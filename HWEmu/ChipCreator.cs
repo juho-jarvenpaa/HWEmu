@@ -50,22 +50,46 @@ namespace HWEmu
                     }
                     break;
                 case ChipCreatorMode.SelectingAndDragging:
-                    if(Raylib.IsMouseButtonDown(MouseButton.Left))
-                    {
+                    MouseSelectEndpoint = InputHandle.MousePosVec2;
+                    // We need to start drawing from smallest value. Otherwise it will break
+                    var x = MathF.Min(MouseSelectStartPoint.X, MouseSelectEndpoint.X);
+                    var y = MathF.Min(MouseSelectStartPoint.Y, MouseSelectEndpoint.Y);
+                    var width = MathF.Abs(MouseSelectEndpoint.X - MouseSelectStartPoint.X);
+                    var height = MathF.Abs(MouseSelectEndpoint.Y - MouseSelectStartPoint.Y);
 
+                    Rectangle selectionRect = new Rectangle(x, y, width, height);
+
+                    if (Raylib.IsMouseButtonDown(MouseButton.Left))
+                    {
+                        Raylib.DrawRectangleLinesEx(
+                            selectionRect,
+                            5f,
+                            Color.Red);
                     }
                     else
                     {
                         // This part adds the IO's to list
                         // Triggers when left click is released
                         // Select IO's inside the painted area
-                        MouseSelectEndpoint = InputHandle.MousePosVec2;
-                        
-                        // TODO rethink how to deal with And, Or etc.
-                        //foreach (var item in )
-                        //{
 
-                        //}
+                        foreach (var chip in Program.ProjectChips)
+                        {
+                            foreach (var i in chip.Inputs)
+                            {
+                                if(Raylib.CheckCollisionPointRec(i.Position, selectionRect))
+                                {
+                                    while(!SelectedInputs.TryAdd(i.Name, i))
+                                    {
+                                        // Increment the name // TODO
+                                        i.ToString().Split("_");
+                                    }
+                                }
+                            }
+                            foreach (var o in chip.Outputs)
+                            {
+
+                            }
+                        }
 
                         Mode = ChipCreatorMode.Selecting;
                     }
