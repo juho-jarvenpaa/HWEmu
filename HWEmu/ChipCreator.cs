@@ -24,14 +24,31 @@ namespace HWEmu
 
         public static void Save()
         {
-            if(SelectedInputs.Count > 0 && SelectedOutputs.Count > 0)
+            string content = "|";
+            string filename = "\\";
+
+            string path = System.AppDomain.CurrentDomain.BaseDirectory + "chips";
+
+            if (SelectedInputs.Count > 0 && SelectedOutputs.Count > 0)
             {
                 // Iterate over all inputs and outputs and form a truth table
                 foreach(var input in SelectedInputs.Values)
                 {
-                    
+                    content += " " + input.Name + " |";
+                }
+
+                content += " -> |";
+
+                // Iterate over all inputs and outputs and form a truth table
+                foreach (var output in SelectedOutputs.Values)
+                {
+                    content += " " + output.Name + " |";
                 }
             }
+
+            // TODO
+            // Prompt filename
+            //File.WriteAllText(path + filename + ".md", content);
         }
 
         public static void ProcessChipCreatorModeChanges()
@@ -71,25 +88,10 @@ namespace HWEmu
                         // This part adds the IO's to list
                         // Triggers when left click is released
                         // Select IO's inside the painted area
-
-                        foreach (var chip in Program.ProjectChips)
-                        {
-                            foreach (var i in chip.Inputs)
-                            {
-                                if(Raylib.CheckCollisionPointRec(i.Position, selectionRect))
-                                {
-                                    while(!SelectedInputs.TryAdd(i.Name, i))
-                                    {
-                                        // Increment the name // TODO
-                                        i.ToString().Split("_");
-                                    }
-                                }
-                            }
-                            foreach (var o in chip.Outputs)
-                            {
-
-                            }
-                        }
+                        ProcessIO(Program.ProjectChips, selectionRect);
+                        ProcessIO(Program.ands, selectionRect);
+                        ProcessIO(Program.ors, selectionRect);
+                        ProcessIO(Program.inverters, selectionRect);
 
                         Mode = ChipCreatorMode.Selecting;
                     }
@@ -108,6 +110,52 @@ namespace HWEmu
                         Mode = ChipCreatorMode.Selecting;
                     }
                     break;
+            }
+        }
+
+        private static void ProcessIO(IEnumerable<Connectable> connectables, Rectangle selectionRect)
+        {
+            foreach (var chip in connectables)
+            {
+                foreach (var i in chip.Inputs)
+                {
+                    if (Raylib.CheckCollisionPointRec(i.Position, selectionRect))
+                    {
+                        string modifiedInputName = i.Name;
+
+                        int incrementInt = 1;
+
+                        while (!SelectedInputs.TryAdd(modifiedInputName, i))
+                        {
+                            if(modifiedInputName.Contains("_"))
+                            {
+                                string[] strings = modifiedInputName.Split("_");
+                                incrementInt = int.Parse(strings.Last());
+                                incrementInt++;
+                                modifiedInputName = strings.First() + incrementInt.ToString();
+                            }
+                            else
+                            {
+                                modifiedInputName += modifiedInputName + incrementInt.ToString();
+                            }
+                        }
+                    }
+                }
+                foreach (var o in chip.Outputs)
+                {
+                    if (Raylib.CheckCollisionPointRec(o.Position, selectionRect))
+                    {
+                        string modifiedInputName = o.Name;
+
+                        while (!SelectedOutputs.TryAdd(modifiedInputName, o))
+                        {
+                            string[] strings = modifiedInputName.Split("_");
+                            int incrementInt = int.Parse(strings.Last());
+                            incrementInt++;
+                            modifiedInputName = strings.First() + incrementInt.ToString();
+                        }
+                    }
+                }
             }
         }
     }
