@@ -22,10 +22,11 @@ namespace HWEmu
         public static Vector2 MouseSelectStartPoint { get; set; } = new Vector2();
         public static Vector2 MouseSelectEndpoint { get; set; } = new Vector2();
 
+        public static string ChipName = "";
+
         public static void Save()
         {
             string content = "|";
-            string filename = "\\";
 
             string path = System.AppDomain.CurrentDomain.BaseDirectory + "chips";
 
@@ -46,9 +47,11 @@ namespace HWEmu
                 }
             }
 
-            // TODO
-            // Prompt filename
-            //File.WriteAllText(path + filename + ".md", content);
+            string filename = "\\" + ChipName;
+
+            File.WriteAllText(path + filename + ".md", content);
+
+            ChipName = "";
         }
 
         public static void ProcessChipCreatorModeChanges()
@@ -61,7 +64,7 @@ namespace HWEmu
                         Mode = ChipCreatorMode.SelectingAndDragging;
                         MouseSelectStartPoint = InputHandle.MousePosVec2;
                     }
-                    if (Raylib.IsKeyDown(KeyboardKey.Enter))
+                    if (Raylib.IsKeyReleased(KeyboardKey.Enter) && (SelectedInputs.Count > 0) && (SelectedOutputs.Count > 0))
                     {
                         Mode = ChipCreatorMode.AskingChipName;
                     }
@@ -97,11 +100,31 @@ namespace HWEmu
                     }
                     break;
                 case ChipCreatorMode.AskingChipName:
-                    if(Raylib.IsKeyDown(KeyboardKey.Enter))
+
+                    if (Raylib.IsKeyPressed(KeyboardKey.Escape))
                     {
-                        Mode = ChipCreatorMode.SavingInProgress;
-                        Save();
+                        Mode = ChipCreatorMode.Selecting;
                     }
+                    else if (Raylib.IsKeyPressed(KeyboardKey.Enter))
+                    {
+                        if (!string.IsNullOrEmpty(ChipName))
+                        {
+                            Mode = ChipCreatorMode.SavingInProgress;
+                            Save();
+                        }
+                    }
+                    else if (Raylib.IsKeyPressed(KeyboardKey.Backspace) && ChipName.Length > 0)
+                    {
+                        ChipName = ChipName.Substring(0, ChipName.Length - 1);
+                    }
+
+                    int c = Raylib.GetCharPressed();
+                    while (c > 0)
+                    {
+                        ChipName += (char)c;
+                        c = Raylib.GetCharPressed();
+                    }
+
                     break;
                 case ChipCreatorMode.SavingInProgress:
                     // After saving return to selecting

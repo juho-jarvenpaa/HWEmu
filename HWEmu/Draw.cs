@@ -40,6 +40,18 @@ namespace HWEmu
             {
                 Raylib.DrawLineEx(InputHandle.MousePosVec2, Program.SelectedOldOutput.Position, 10f, Color.Yellow);
             }
+
+            if(ChipCreator.Mode == ChipCreatorMode.AskingChipName)
+            {
+                var p = Raylib.GetScreenCenter();
+                var w = 800;
+                var h = 50;
+
+                string name = "Type Chip Name: " + ChipCreator.ChipName;
+
+                Raylib.DrawRectangle((int)p.X, (int)p.Y, w, h, Color.Yellow);
+                Raylib.DrawText(name, (int)p.X, (int)p.Y, 40, Color.Red);
+            }
         }
     }
 }

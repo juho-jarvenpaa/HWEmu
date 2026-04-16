@@ -107,7 +107,7 @@ namespace HWEmu
             {
                 ProcessInputsWithShift();
             }
-            else if(Raylib.IsKeyDown(KeyboardKey.LeftControl) || Raylib.IsKeyDown(KeyboardKey.RightControl))
+            else if(Raylib.IsKeyDown(KeyboardKey.LeftControl) || Raylib.IsKeyDown(KeyboardKey.RightControl) || ChipCreator.Mode == ChipCreatorMode.AskingChipName)
             {
                 ChipCreator.ProcessChipCreatorModeChanges();
             }
