@@ -33,19 +33,37 @@ namespace HWEmu
             if (SelectedInputs.Count > 0 && SelectedOutputs.Count > 0)
             {
                 // Iterate over all inputs and outputs and form a truth table
-                foreach(var input in SelectedInputs.Values)
+                foreach(var input in SelectedInputs.Keys)
                 {
-                    content += " " + input.Name + " |";
+                    content += " " + input + " |";
                 }
 
                 content += " -> |";
 
                 // Iterate over all inputs and outputs and form a truth table
-                foreach (var output in SelectedOutputs.Values)
+                foreach (var output in SelectedOutputs.Keys)
                 {
-                    content += " " + output.Name + " |";
+                    content += " " + output + " |";
                 }
             }
+
+            // TODO: Emulate all possible inputs and determine output.
+            // Set all inputs to 0
+            foreach(var input in SelectedInputs)
+            {
+                input.Value.State = false;
+            }
+            // Determine num of combinations
+            // 2 ^ input.count
+            int numOfPossibleStates = 2 * SelectedInputs.Count;
+
+
+            // TODO
+            for (int i = 0; i < numOfPossibleStates; i++)
+            {
+
+            }
+
 
             string filename = "\\" + ChipName;
 
@@ -159,7 +177,7 @@ namespace HWEmu
                             }
                             else
                             {
-                                modifiedInputName += modifiedInputName + incrementInt.ToString();
+                                modifiedInputName += "_" + incrementInt.ToString();
                             }
                         }
                     }
@@ -168,14 +186,23 @@ namespace HWEmu
                 {
                     if (Raylib.CheckCollisionPointRec(o.Position, selectionRect))
                     {
-                        string modifiedInputName = o.Name;
+                        string modifiedOutputName = o.Name;
 
-                        while (!SelectedOutputs.TryAdd(modifiedInputName, o))
+                        int incrementInt = 1;
+
+                        while (!SelectedOutputs.TryAdd(modifiedOutputName, o))
                         {
-                            string[] strings = modifiedInputName.Split("_");
-                            int incrementInt = int.Parse(strings.Last());
-                            incrementInt++;
-                            modifiedInputName = strings.First() + incrementInt.ToString();
+                            if (modifiedOutputName.Contains("_"))
+                            {
+                                string[] strings = modifiedOutputName.Split("_");
+                                incrementInt = int.Parse(strings.Last());
+                                incrementInt++;
+                                modifiedOutputName = strings.First() + incrementInt.ToString();
+                            }
+                            else
+                            {
+                                modifiedOutputName += "_" + incrementInt.ToString();
+                            }
                         }
                     }
                 }

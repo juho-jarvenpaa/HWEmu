@@ -41,7 +41,17 @@ namespace HWEmu
                 Raylib.DrawLineEx(InputHandle.MousePosVec2, Program.SelectedOldOutput.Position, 10f, Color.Yellow);
             }
 
-            if(ChipCreator.Mode == ChipCreatorMode.AskingChipName)
+            foreach (var item in ChipCreator.SelectedInputs)
+            {
+                Raylib.DrawCircle((int)item.Value.Position.X, (int)item.Value.Position.Y, 10, Color.Yellow);
+            }
+
+            foreach (var item in ChipCreator.SelectedOutputs)
+            {
+                Raylib.DrawCircle((int)item.Value.Position.X, (int)item.Value.Position.Y, 10, Color.Yellow);
+            }
+
+            if (ChipCreator.Mode == ChipCreatorMode.AskingChipName)
             {
                 var p = Raylib.GetScreenCenter();
                 var w = 800;
