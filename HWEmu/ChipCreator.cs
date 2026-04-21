@@ -47,21 +47,29 @@ namespace HWEmu
                 }
             }
 
+            content += "\n";
+
             // TODO: Emulate all possible inputs and determine output.
             // Set all inputs to 0
             foreach(var input in SelectedInputs)
             {
                 input.Value.State = false;
             }
-            // Determine num of combinations
-            // 2 ^ input.count
-            int numOfPossibleStates = 2 * SelectedInputs.Count;
 
+            int bits = SelectedInputs.Count;
+            int max = (1 << bits) - 1;
 
-            // TODO
-            for (int i = 0; i < numOfPossibleStates; i++)
+            // TODO 
+
+            for (int value = 0; value <= max; value++)
             {
-
+                for (int i = bits - 1; i >= 0; i--)
+                {
+                    content += "| ";
+                    content += (value >> i) & 1;
+                    content += " ";
+                }
+                content += "| → |\n";
             }
 
 
