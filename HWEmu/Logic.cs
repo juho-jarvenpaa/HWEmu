@@ -57,6 +57,15 @@ namespace HWEmu
             Console.WriteLine("Logic stopped");
         }
 
+        public static void ProcessAll()
+        {
+            while (ConnectorStateQueue.Count > 0)
+            {
+                StateTick();
+                Task.Delay(3000);
+            }
+        }
+
         private static void StateTick()
         {
             if (ConnectorStateQueue.Count > 0)

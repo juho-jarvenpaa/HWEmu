@@ -49,7 +49,6 @@ namespace HWEmu
 
             content += "\n";
 
-            // TODO: Emulate all possible inputs and determine output.
             // Set all inputs to 0
             foreach(var input in SelectedInputs)
             {
@@ -59,18 +58,68 @@ namespace HWEmu
             int bits = SelectedInputs.Count;
             int max = (1 << bits) - 1;
 
-            // TODO 
-
             for (int value = 0; value <= max; value++)
             {
+                string inputsBinary = "";
+                string currentInput = "";
+
                 for (int i = bits - 1; i >= 0; i--)
                 {
                     content += "| ";
-                    content += (value >> i) & 1;
+                    currentInput = ((value >> i) & 1).ToString();
+                    content += currentInput;
+                    inputsBinary += currentInput;
                     content += " ";
                 }
-                content += "| → |\n";
+                content += "| → |";
+
+                // Output calculation
+                // First set inputs to correct state
+                int inputIndex = 0;
+                foreach (var input in SelectedInputs)
+                {
+                    input.Value.State = inputsBinary[inputIndex] == '1';
+                    inputIndex++;
+                }
+
+                //foreach (var input in SelectedInputs.Values)
+                //{
+                //    input.Parent.CheckIfInputShouldChange(new Connector
+                //    {
+                //        NewInput = input,
+                //        State = input.State,
+                //        OldOutput = null
+                //    });
+                //}
+
+                //Logic.StopStateUpdates();
+
+                //foreach (var input in SelectedInputs.Values)
+                //{
+                //    foreach (Connector c in Program.Connectors)
+                //    {
+                //        Logic.ConnectorStateQueue.Add(c);
+                //    }
+                //}
+
+                //Logic.ProcessAll();
+                //Logic.StartStateUpdateLoop();
+
+                foreach (var output in SelectedOutputs.Values)
+                {
+                    content += " ";
+                    if (output.State)
+                    {
+                        content += "1 |";
+                    }
+                    else
+                    {
+                        content += "0 |";
+                    }
+                }
+                content += "\n";
             }
+
 
 
             string filename = "\\" + ChipName;
