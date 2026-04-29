@@ -73,7 +73,6 @@ namespace HWEmu
                 }
                 content += "| → |";
 
-                // Output calculation
                 // First set inputs to correct state
                 int inputIndex = 0;
                 foreach (var input in SelectedInputs)
@@ -82,15 +81,21 @@ namespace HWEmu
                     inputIndex++;
                 }
 
-                //foreach (var input in SelectedInputs.Values)
-                //{
-                //    input.Parent.CheckIfInputShouldChange(new Connector
-                //    {
-                //        NewInput = input,
-                //        State = input.State,
-                //        OldOutput = null
-                //    });
-                //}
+                // Calculat output result
+                // As logic calculatation is a bit mess. Fake that there is OldOutput value for inputs.
+
+                foreach (var input in SelectedInputs.Values)
+                {
+                    input.Parent.CheckIfInputShouldChange(new Connector
+                    {
+                        NewInput = input,
+                        State = input.State,
+                        OldOutput = new Output()
+                        {
+                            Guid = Guid.NewGuid(), Name = input.Name, Parent = null, Position = new(), State = input.State
+                        },
+                    });
+                }
 
                 //Logic.StopStateUpdates();
 
@@ -105,6 +110,8 @@ namespace HWEmu
                 //Logic.ProcessAll();
                 //Logic.StartStateUpdateLoop();
 
+
+                // Write output values
                 foreach (var output in SelectedOutputs.Values)
                 {
                     content += " ";
