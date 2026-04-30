@@ -142,6 +142,51 @@ namespace HWEmu
                     Program.inverters.Add(i);
                     Logic.StartStateUpdateLoop();
                 }
+
+                if (Raylib.IsMouseButtonPressed(MouseButton.Extra))
+                {
+                    Logic.StopStateUpdates();
+
+                    var og = HWEmu.Chips.ChipList[0];
+
+                    Chip newChip = new Chip
+                    {
+                        binaryStateTable = og.binaryStateTable,
+                        ChipName = og.ChipName,
+                        CurrentBinaryInputState = og.CurrentBinaryInputState,
+                        Inputs = new List<Input>(),
+                        Outputs = new List<Output>(),
+                        Rectangle = new Rectangle(MousePosVec2, og.Rectangle.Width, og.Rectangle.Height)
+                    };
+
+                    foreach (var item in og.Inputs)
+                    {
+                        newChip.Inputs.Add(new Input(){
+                            Guid = Guid.NewGuid(), Name = item.Name, Parent = null, Position = new Vector2(), State = item.State});
+                    }
+                    foreach (var item in og.Outputs)
+                    {
+                        newChip.Outputs.Add(new Output()
+                        {
+                            Guid = Guid.NewGuid(),
+                            Name = item.Name,
+                            Parent = null,
+                            Position = new Vector2(),
+                            State = item.State
+                        });
+                    }
+
+                    newChip.InputCount = newChip.Inputs.Count();
+                    newChip.OutputCount = newChip.Outputs.Count();
+
+                    Program.ProjectChips.Add(newChip);
+
+                    // TODO
+                    // Set positions first!
+                    Chip.IOPositionOffsetSetFromChip(newChip);
+
+                    Logic.StartStateUpdateLoop();
+                }
             }
         }
     }

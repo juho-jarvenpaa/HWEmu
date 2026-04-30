@@ -15,7 +15,7 @@ namespace HWEmu
 
         public string CurrentBinaryInputState { get; set; } = "";
 
-        public static void RecalculateIOPositions(Chip chip)
+        public static void IOPositionOffsetSetFromChip(Chip chip)
         {
             foreach (var input in chip.Inputs)
             {
