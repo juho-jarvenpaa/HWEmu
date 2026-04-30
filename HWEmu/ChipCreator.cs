@@ -86,26 +86,33 @@ namespace HWEmu
 
                 foreach (var input in SelectedInputs.Values)
                 {
-                    input.Parent.CheckIfInputShouldChange(new Connector
+                    if(input.Parent != null)
                     {
-                        NewInput = input,
-                        State = input.State,
-                        OldOutput = new Output()
+                        input.Parent.CheckIfInputShouldChange(new Connector
                         {
-                            Guid = Guid.NewGuid(), Name = input.Name, Parent = null, Position = new(), State = input.State
-                        },
-                    });
+                            NewInput = input,
+                            State = input.State,
+                            OldOutput = new Output()
+                            {
+                                Guid = Guid.NewGuid(),
+                                Name = input.Name,
+                                Parent = null,
+                                Position = new(),
+                                State = input.State
+                            },
+                        });
+                    }
                 }
 
                 //Logic.StopStateUpdates();
 
-                //foreach (var input in SelectedInputs.Values)
-                //{
-                //    foreach (Connector c in Program.Connectors)
-                //    {
-                //        Logic.ConnectorStateQueue.Add(c);
-                //    }
-                //}
+                foreach (var input in SelectedInputs.Values)
+                {
+                    foreach (Connector c in Program.Connectors)
+                    {
+                        Logic.ConnectorStateQueue.Add(c);
+                    }
+                }
 
                 //Logic.ProcessAll();
                 //Logic.StartStateUpdateLoop();

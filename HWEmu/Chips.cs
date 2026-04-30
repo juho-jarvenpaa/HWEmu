@@ -12,21 +12,21 @@ namespace HWEmu
 
         public static void AddChips()
         {
-            Program.ProjectChips.Add(HWEmu.Chips.ChipList[0]);
-            Program.ProjectChips[0].Rectangle = new Rectangle(400f, 400f, Program.ProjectChips[0].Rectangle.Width, Program.ProjectChips[0].Rectangle.Height);
-            Chip.IOPositionOffsetSetFromChip(Program.ProjectChips[0]);
+            //Program.ProjectChips.Add(HWEmu.Chips.ChipList[0]);
+            //Program.ProjectChips[0].Rectangle = new Rectangle(400f, 400f, Program.ProjectChips[0].Rectangle.Width, Program.ProjectChips[0].Rectangle.Height);
+            //Chip.IOPositionOffsetSetFromChip(Program.ProjectChips[0]);
 
-            Program.ProjectChips.Add(HWEmu.Chips.ChipList[1]);
-            Program.ProjectChips[1].Rectangle = new Rectangle(1200f, 400f, Program.ProjectChips[1].Rectangle.Width, Program.ProjectChips[1].Rectangle.Height);
-            Chip.IOPositionOffsetSetFromChip(Program.ProjectChips[1]);
+            //Program.ProjectChips.Add(HWEmu.Chips.ChipList[1]);
+            //Program.ProjectChips[1].Rectangle = new Rectangle(1200f, 400f, Program.ProjectChips[1].Rectangle.Width, Program.ProjectChips[1].Rectangle.Height);
+            //Chip.IOPositionOffsetSetFromChip(Program.ProjectChips[1]);
 
-            Program.ProjectChips.Add(HWEmu.Chips.ChipList[2]);
-            Program.ProjectChips[2].Rectangle = new Rectangle(400f, 1200f, Program.ProjectChips[2].Rectangle.Width, Program.ProjectChips[2].Rectangle.Height);
-            Chip.IOPositionOffsetSetFromChip(Program.ProjectChips[2]);
+            //Program.ProjectChips.Add(HWEmu.Chips.ChipList[2]);
+            //Program.ProjectChips[2].Rectangle = new Rectangle(400f, 1200f, Program.ProjectChips[2].Rectangle.Width, Program.ProjectChips[2].Rectangle.Height);
+            //Chip.IOPositionOffsetSetFromChip(Program.ProjectChips[2]);
 
-            Program.ProjectChips.Add(HWEmu.Chips.ChipList[3]);
-            Program.ProjectChips[3].Rectangle = new Rectangle(1800f, 1200f, Program.ProjectChips[3].Rectangle.Width, Program.ProjectChips[3].Rectangle.Height);
-            Chip.IOPositionOffsetSetFromChip(Program.ProjectChips[3]);
+            //Program.ProjectChips.Add(HWEmu.Chips.ChipList[3]);
+            //Program.ProjectChips[3].Rectangle = new Rectangle(1800f, 1200f, Program.ProjectChips[3].Rectangle.Width, Program.ProjectChips[3].Rectangle.Height);
+            //Chip.IOPositionOffsetSetFromChip(Program.ProjectChips[3]);
         }
 
         public static void LoadChips()

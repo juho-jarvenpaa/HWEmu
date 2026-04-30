@@ -182,9 +182,6 @@ namespace HWEmu
                     Program.ProjectChips.Add(newChip);
                     Chip.IOPositionOffsetSetFromChip(newChip);
 
-                    // TODO
-                    // Set positions first!
-
                     Logic.StartStateUpdateLoop();
                 }
             }
