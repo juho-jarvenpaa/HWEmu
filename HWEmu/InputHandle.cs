@@ -162,7 +162,7 @@ namespace HWEmu
                     foreach (var item in og.Inputs)
                     {
                         newChip.Inputs.Add(new Input(){
-                            Guid = Guid.NewGuid(), Name = item.Name, Parent = null, Position = new Vector2(), State = item.State});
+                            Guid = Guid.NewGuid(), Name = item.Name, Parent = null, Position = item.Position - og.Rectangle.Position, State = item.State});
                     }
                     foreach (var item in og.Outputs)
                     {
@@ -171,7 +171,7 @@ namespace HWEmu
                             Guid = Guid.NewGuid(),
                             Name = item.Name,
                             Parent = null,
-                            Position = new Vector2(),
+                            Position = item.Position - og.Rectangle.Position,
                             State = item.State
                         });
                     }
@@ -180,10 +180,10 @@ namespace HWEmu
                     newChip.OutputCount = newChip.Outputs.Count();
 
                     Program.ProjectChips.Add(newChip);
+                    Chip.IOPositionOffsetSetFromChip(newChip);
 
                     // TODO
                     // Set positions first!
-                    Chip.IOPositionOffsetSetFromChip(newChip);
 
                     Logic.StartStateUpdateLoop();
                 }
