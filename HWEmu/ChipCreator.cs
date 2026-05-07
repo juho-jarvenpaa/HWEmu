@@ -100,7 +100,7 @@ namespace HWEmu
                             {
                                 Guid = Guid.NewGuid(),
                                 Name = input.Name,
-                                Parent = null,
+                                Parent = input.Parent,
                                 Position = new(),
                                 State = input.State
                             },

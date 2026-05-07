@@ -159,10 +159,13 @@ namespace HWEmu
                         Rectangle = new Rectangle(MousePosVec2, og.Rectangle.Width, og.Rectangle.Height)
                     };
 
+                    Wire fakeParent = new Wire(new());
+                    fakeParent.Inputs.Add(new Input() { Parent = fakeParent, Guid = Guid.NewGuid(), Name = "FakeParentInput", Position = new(), State = false });
+
                     foreach (var item in og.Inputs)
                     {
                         newChip.Inputs.Add(new Input(){
-                            Guid = Guid.NewGuid(), Name = item.Name, Parent = null, Position = item.Position - og.Rectangle.Position, State = item.State});
+                            Guid = Guid.NewGuid(), Name = item.Name, Parent = fakeParent, Position = item.Position - og.Rectangle.Position, State = item.State});
                     }
                     foreach (var item in og.Outputs)
                     {
