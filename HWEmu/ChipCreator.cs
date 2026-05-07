@@ -26,6 +26,7 @@ namespace HWEmu
 
         public static void Save()
         {
+            Logic.StopStateUpdates();
             string content = "|";
 
             string path = System.AppDomain.CurrentDomain.BaseDirectory + "chips";
@@ -58,6 +59,7 @@ namespace HWEmu
             int bits = SelectedInputs.Count;
             int max = (1 << bits) - 1;
 
+            // Iterate over all possible combinations
             for (int value = 0; value <= max; value++)
             {
                 string inputsBinary = "";
@@ -84,11 +86,13 @@ namespace HWEmu
                 // Calculat output result
                 // As logic calculatation is a bit mess. Fake that there is OldOutput value for inputs.
 
+                List<Connector> inputConnectors = new List<Connector>();
+
                 foreach (var input in SelectedInputs.Values)
                 {
                     if(input.Parent != null)
                     {
-                        input.Parent.CheckIfInputShouldChange(new Connector
+                        Connector c = new Connector
                         {
                             NewInput = input,
                             State = input.State,
@@ -100,23 +104,20 @@ namespace HWEmu
                                 Position = new(),
                                 State = input.State
                             },
-                        });
+                        };
+
+                        bool changed = input.Parent.UpdateInputIfItShouldChange(c, true);
+                        inputConnectors.Add(c);
                     }
                 }
 
-                //Logic.StopStateUpdates();
 
-                foreach (var input in SelectedInputs.Values)
+                foreach (var c in inputConnectors)
                 {
-                    foreach (Connector c in Program.Connectors)
-                    {
-                        Logic.ConnectorStateQueue.Add(c);
-                    }
+                    Logic.ConnectorStateQueue.Add(c);
                 }
 
-                //Logic.ProcessAll();
-                //Logic.StartStateUpdateLoop();
-
+                Logic.ProcessAll();
 
                 // Write output values
                 foreach (var output in SelectedOutputs.Values)
@@ -141,6 +142,8 @@ namespace HWEmu
             File.WriteAllText(path + filename + ".md", content);
 
             ChipName = "";
+
+            Logic.StartStateUpdateLoop();
         }
 
         public static void ProcessChipCreatorModeChanges()

@@ -66,8 +66,9 @@ namespace HWEmu
             }
         }
 
-        public override void CheckIfInputShouldChange(Connector connector)
+        public override bool UpdateInputIfItShouldChange(Connector connector, bool ChangeInputState = false)
         {
+            bool changed = false;
             int inputIndex = 0;
 
             foreach (var input in Inputs)
@@ -75,7 +76,7 @@ namespace HWEmu
                 if(input.Guid == connector.NewInput.Guid)
                 {
                     // Check if input state has changed
-                    bool ChangeInputState = true;
+                    ChangeInputState = true;
 
                     foreach (Connector c in Program.Connectors)
                     {
@@ -144,6 +145,8 @@ namespace HWEmu
                                     // Set connector state to be the opposite that it was
                                     c.State = !c.State;
                                     Logic.ConnectorStateQueue.Add(c);
+                                    Console.WriteLine("Connector changed to: " + c.State);
+                                    changed = true;
                                 }
                             }
                         }
@@ -151,6 +154,8 @@ namespace HWEmu
                 }
                 inputIndex++;
             }
+
+            return changed;
         }
     }
 }

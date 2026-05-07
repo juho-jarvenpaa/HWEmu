@@ -71,12 +71,14 @@ namespace HWEmu.Gates
             }
         }
 
-        public override void CheckIfInputShouldChange(Connector connector)
+        public override bool UpdateInputIfItShouldChange(Connector connector, bool ChangeInputState = false)
         {
+            bool changed = false;
+
             // Check if state is different
-            if(Inputs[0].State != connector.State)
+            if(ChangeInputState || Inputs[0].State != connector.State)
             {
-                bool ChangeInputState = true;
+                ChangeInputState = true;
 
                 foreach (Connector c in Program.Connectors)
                 {
@@ -108,10 +110,12 @@ namespace HWEmu.Gates
                             // Set connector state
                             c.State = Outputs[0].State;
                             Logic.ConnectorStateQueue.Add(c);
+                            changed = true;
                         }
                     }
                 }
             }
+            return changed;
         }
     }
 }

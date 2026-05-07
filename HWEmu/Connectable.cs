@@ -23,6 +23,6 @@ namespace HWEmu
             }
         }
 
-        public abstract void CheckIfInputShouldChange(Connector c);
+        public abstract bool UpdateInputIfItShouldChange(Connector c, bool shouldChange = false);
     }
 }

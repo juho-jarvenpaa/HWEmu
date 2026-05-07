@@ -59,11 +59,16 @@ namespace HWEmu
 
         public static void ProcessAll()
         {
+            Console.WriteLine("ProcessAll started");
+
             while (ConnectorStateQueue.Count > 0)
             {
+                Console.WriteLine("Queue count: " + ConnectorStateQueue.Count);
                 StateTick();
-                Task.Delay(3000);
+                Task.Delay(10).Wait();
             }
+
+            Console.WriteLine("ProcessAll stopped");
         }
 
         private static void StateTick()
@@ -74,7 +79,7 @@ namespace HWEmu
 
                 if(connector.NewInput.Parent != null)
                 {
-                    connector.NewInput.Parent.CheckIfInputShouldChange(connector);
+                    connector.NewInput.Parent.UpdateInputIfItShouldChange(connector);
                 }
 
                 ConnectorStateQueue.RemoveAt(0);
